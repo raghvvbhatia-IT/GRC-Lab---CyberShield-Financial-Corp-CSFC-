@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSFC GRC Lab — Full Ready-to-Run Package</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--surf:#0d1420;--card:#111c2c;--raise:#162334;--brd:#1a2f47;--lit:#254563;
+  --teal:#2dd4bf;--tdim:rgba(45,212,191,.1);--tglow:rgba(45,212,191,.25);
+  --green:#4ade80;--gdim:rgba(74,222,128,.1);
+  --amber:#fbbf24;--adim:rgba(251,191,36,.1);
+  --red:#f87171;--rdim:rgba(248,113,113,.1);
+  --purple:#a78bfa;--pdim:rgba(167,139,250,.1);
+  --blue:#60a5fa;--bdim:rgba(96,165,250,.1);
+  --tx:#7a96b0;--txm:#a8c0d6;--txb:#ddeeff;--white:#f0f8ff;
+  --mono:'JetBrains Mono',monospace;--sans:'Outfit',sans-serif;
+  --r:8px;--rl:12px;--sh:0 8px 32px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.65;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--teal)}
+a{color:inherit;text-decoration:none}
+/* ─── LAYOUT ─── */
+#sb{position:fixed;left:0;top:0;bottom:0;width:255px;background:var(--surf);border-right:1px solid var(--brd);display:flex;flex-direction:column;z-index:100;transition:transform .3s}
+#main{margin-left:255px;min-height:100vh}
+@media(max-width:860px){#sb{transform:translateX(-100%)}#sb.open{transform:none;box-shadow:6px 0 40px rgba(0,0,0,.8)}#main{margin-left:0}#mb{display:flex!important}}
+#mb{display:none;position:fixed;top:.7rem;left:.7rem;z-index:200;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:.4rem .7rem;cursor:pointer;color:var(--txb);font-size:1.1rem;align-items:center}
+/* ─── SIDEBAR ─── */
+.sb-top{padding:1.1rem 1.3rem;border-bottom:1px solid var(--brd)}
+.sb-logo{display:flex;align-items:center;gap:.6rem}
+.sb-ico{width:32px;height:32px;background:linear-gradient(135deg,var(--teal),var(--green));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.sb-nm{font-weight:800;font-size:.88rem;color:var(--white);line-height:1.1}
+.sb-nm span{color:var(--teal)}
+.sb-tag{font-family:var(--mono);font-size:.5rem;letter-spacing:.15em;color:var(--tx);opacity:.5;margin-top:.2rem}
+.sb-prog{padding:.75rem 1.3rem;border-bottom:1px solid var(--brd)}
+.sp-row{display:flex;justify-content:space-between;margin-bottom:.3rem}
+.sp-row span{font-family:var(--mono);font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--tx)}
+.sp-row strong{font-family:var(--mono);font-size:.65rem;color:var(--green)}
+.sp-bar{height:3px;background:var(--brd);border-radius:10px;overflow:hidden}
+.sp-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:10px;width:0;transition:width .5s ease}
+.sb-nav{flex:1;overflow-y:auto;padding:.4rem 0}
+.sb-sec{font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--tx);opacity:.4;padding:.6rem 1.3rem .2rem}
+.ni{display:flex;align-items:center;gap:.55rem;padding:.45rem 1.3rem;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.ni:hover{background:var(--card);color:var(--txb)}
+.ni.on{background:var(--tdim);border-left-color:var(--teal);color:var(--teal)}
+.ni.dn .nc{background:var(--green);border-color:var(--green);color:var(--bg)}
+.ni-i{font-size:.75rem;width:15px;text-align:center;flex-shrink:0;color:var(--tx)}
+.ni.on .ni-i{color:var(--teal)}
+.ni-l{font-size:.74rem;font-weight:600;color:var(--txm);flex:1;line-height:1.2}
+.ni.on .ni-l{color:var(--teal)}
+.nc{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--brd);font-size:.48rem;display:flex;align-items:center;justify-content:center;color:transparent;flex-shrink:0;transition:all .2s}
+.sb-ft{padding:.75rem 1.3rem;border-top:1px solid var(--brd);font-family:var(--mono);font-size:.5rem;color:var(--tx);opacity:.4;line-height:1.6}
+/* ─── TOPBAR ─── */
+#tb{position:sticky;top:0;background:rgba(7,9,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--brd);height:48px;padding:0 1.8rem;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.tb-c{font-family:var(--mono);font-size:.64rem;color:var(--tx);display:flex;align-items:center;gap:.4rem}
+.tb-c .cur{color:var(--teal)}
+.tb-r{display:flex;align-items:center;gap:.5rem}
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .85rem;border-radius:var(--r);font-family:var(--mono);font-size:.64rem;font-weight:700;cursor:pointer;transition:all .15s;border:none;letter-spacing:.03em}
+.btn-t{background:var(--teal);color:var(--bg)}.btn-t:hover{background:#5eead4;transform:translateY(-1px);box-shadow:0 4px 14px var(--tglow)}
+.btn-g{background:transparent;color:var(--tx);border:1px solid var(--brd)}.btn-g:hover{border-color:var(--lit);color:var(--txb);background:var(--card)}
+.btn-r{background:var(--red);color:var(--bg)}.btn-r:hover{background:#fca5a5}
+/* ─── PAGES ─── */
+.pg{display:none;padding:2rem 2.2rem 5rem;max-width:1040px;animation:up .2s ease}
+.pg.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* ─── PAGE HEADER ─── */
+.ph-eye{font-family:var(--mono);font-size:.57rem;letter-spacing:.18em;color:var(--teal);text-transform:uppercase;margin-bottom:.45rem;display:flex;align-items:center;gap:.4rem}
+.ph-eye::before{content:'';display:block;width:16px;height:1px;background:var(--teal)}
+h1.pht{font-size:clamp(1.7rem,3vw,2.4rem);font-weight:800;color:var(--white);line-height:1.1;margin-bottom:.65rem}
+h1.pht .t{color:var(--teal)}.pht .g{color:var(--green)}.pht .a{color:var(--amber)}.pht .r{color:var(--red)}
+.ph-d{font-size:.93rem;color:var(--tx);max-width:580px;font-weight:300;line-height:1.75;margin-bottom:1.4rem}
+/* ─── BADGES ─── */
+.bd{display:inline-flex;align-items:center;gap:.2rem;font-family:var(--mono);font-size:.57rem;letter-spacing:.05em;padding:.16rem .5rem;border-radius:4px;font-weight:700}
+.bt{background:var(--tdim);color:var(--teal);border:1px solid rgba(45,212,191,.2)}
+.bg{background:var(--gdim);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.ba{background:var(--adim);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.br{background:var(--rdim);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.bp{background:var(--pdim);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.bb{background:var(--bdim);color:var(--blue);border:1px solid rgba(96,165,250,.2)}
+/* ─── CALLOUTS ─── */
+.cl{display:flex;gap:.8rem;padding:.85rem 1rem;border-radius:var(--r);margin:.85rem 0;font-size:.83rem;line-height:1.75}
+.cl-i{font-size:.95rem;flex-shrink:0;margin-top:.1rem}
+.cl strong{font-family:var(--mono);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+.c-why{background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.18)}.c-why strong{color:var(--green)}
+.c-info{background:rgba(45,212,191,.05);border:1px solid rgba(45,212,191,.18)}.c-info strong{color:var(--teal)}
+.c-warn{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.18)}.c-warn strong{color:var(--amber)}
+.c-danger{background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.18)}.c-danger strong{color:var(--red)}
+.c-purple{background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.18)}.c-purple strong{color:var(--purple)}
+/* ─── CODE BLOCKS ─── */
+.cb{background:#020508;border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin:.75rem 0}
+.cb-hd{display:flex;align-items:center;justify-content:space-between;padding:.45rem .85rem;background:var(--card);border-bottom:1px solid var(--brd)}
+.cb-lang{font-family:var(--mono);font-size:.55rem;color:var(--tx);opacity:.6;letter-spacing:.1em;text-transform:uppercase}
+.cp{font-family:var(--mono);font-size:.55rem;color:var(--tx);background:var(--raise);border:1px solid var(--brd);padding:.12rem .45rem;border-radius:4px;cursor:pointer;transition:all .15s}
+.cp:hover{color:var(--teal);border-color:var(--teal)}.cp.ok{color:var(--green);border-color:var(--green)}
+.cb-b{padding:.85rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.73rem;line-height:1.9}
+.cc{color:#3a5570;font-style:italic}.pp{color:var(--green)}.cm{color:var(--txb)}
+.kw{color:var(--teal)}.st{color:var(--amber)}.wl{color:var(--amber)}.er{color:var(--red)}
+.ou{color:var(--tx);opacity:.6}
+/* ─── TABS ─── */
+.tab-bar{display:flex;border-bottom:1px solid var(--brd);margin-bottom:1.3rem;overflow-x:auto;gap:0}
+.tab-btn{padding:.55rem .95rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.04em;color:var(--tx);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s}
+.tab-btn:hover{color:var(--txb)}.tab-btn.on{color:var(--teal);border-bottom-color:var(--teal)}
+.tp{display:none}.tp.on{display:block;animation:up .18s ease}
+/* ─── ACCORDION ─── */
+.acc{border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin:.75rem 0}
+.ac-i{border-bottom:1px solid var(--brd)}.ac-i:last-child{border-bottom:none}
+.ac-t{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;cursor:pointer;background:var(--card);transition:background .15s;gap:.65rem}
+.ac-t:hover{background:var(--raise)}
+.ac-tl{display:flex;align-items:center;gap:.6rem}
+.ac-n{font-family:var(--mono);font-size:.58rem;font-weight:700;color:var(--bg);background:var(--teal);width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ac-ti{font-size:.85rem;font-weight:600;color:var(--txb)}
+.ac-ar{color:var(--tx);font-size:.68rem;transition:transform .22s;flex-shrink:0}
+.ac-i.open .ac-ar{transform:rotate(90deg);color:var(--teal)}
+.ac-b{max-height:0;overflow:hidden;transition:max-height .38s cubic-bezier(.4,0,.2,1);background:var(--bg)}
+.ac-i.open .ac-b{max-height:4000px}
+.ac-bi{padding:1.1rem 1.2rem 1.4rem}
+.ac-bi p{font-size:.83rem;color:var(--txm);line-height:1.75;margin-bottom:.6rem}
+/* ─── CHECKLIST ─── */
+.ck{list-style:none;display:flex;flex-direction:column;gap:.35rem;margin:.75rem 0}
+.ck-i{display:flex;align-items:flex-start;gap:.6rem;padding:.6rem .85rem;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);cursor:pointer;transition:all .15s;user-select:none}
+.ck-i:hover{border-color:var(--lit);background:var(--raise)}
+.ck-i.ck-on{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.03)}
+.ck-b{width:17px;height:17px;border-radius:3px;border:1.5px solid var(--lit);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:.55rem;color:transparent;background:var(--bg);transition:all .2s}
+.ck-i.ck-on .ck-b{background:var(--green);border-color:var(--green);color:var(--bg)}
+.ck-tx{flex:1;font-size:.82rem;color:var(--txm);line-height:1.5}
+.ck-i.ck-on .ck-tx{color:var(--tx);text-decoration:line-through;opacity:.5}
+/* ─── TABLES ─── */
+.tw{overflow-x:auto;border:1px solid var(--brd);border-radius:var(--rl)}
+table.dt{width:100%;border-collapse:collapse;font-size:.79rem}
+table.dt th{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);padding:.6rem .85rem;border-bottom:2px solid var(--lit);background:var(--card);text-align:left;white-space:nowrap}
+table.dt td{padding:.6rem .85rem;border-bottom:1px solid var(--brd);color:var(--txm);vertical-align:top;line-height:1.4}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tr:hover td{background:var(--card)}
+.mc{font-family:var(--mono);font-size:.7rem;color:var(--teal);font-weight:700}
+.fr td{border-left:2px solid var(--red);background:rgba(248,113,113,.03)!important}
+/* ─── CARDS & GRIDS ─── */
+.gr{display:grid;gap:.9rem}
+.g2{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(195px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.cd{background:var(--card);border:1px solid var(--brd);border-radius:var(--rl);padding:1.2rem;transition:border-color .2s,box-shadow .2s}
+.cd:hover{border-color:var(--lit);box-shadow:var(--sh)}
+/* ─── STAT CARDS ─── */
+.sc{background:var(--card);border:1px solid var(--brd);border-radius:var(--rl);padding:1rem 1.2rem;display:flex;align-items:flex-start;gap:.85rem}
+.sc-i{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.si-t{background:var(--tdim)}.si-g{background:var(--gdim)}.si-a{background:var(--adim)}.si-r{background:var(--rdim)}.si-p{background:var(--pdim)}
+.sc-n{font-size:1.45rem;font-weight:800;color:var(--white);line-height:1}
+.sc-l{font-size:.73rem;color:var(--tx);margin-top:.2rem;line-height:1.3}
+/* ─── FINDING CARD ─── */
+.fc{background:var(--card);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;transition:all .2s}
+.fc:hover{border-color:var(--lit);transform:translateY(-2px);box-shadow:var(--sh)}
+.fc-h{padding:.9rem 1.1rem;background:var(--raise);border-bottom:1px solid var(--brd);display:flex;align-items:flex-start;justify-content:space-between;gap:.65rem}
+.fc-id{font-family:var(--mono);font-size:.55rem;color:var(--tx);opacity:.55;margin-bottom:.2rem}
+.fc-ti{font-size:.92rem;font-weight:700;color:var(--white);line-height:1.2}
+.fc-bd{padding:1rem 1.1rem}
+.fc-bd p{font-size:.81rem;color:var(--tx);line-height:1.7;margin-bottom:.6rem}
+.fc-r{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem;align-items:center}
+.fc-k{font-family:var(--mono);font-size:.57rem;color:var(--tx);opacity:.55;min-width:68px}
+.fc-v{font-size:.79rem;color:var(--txm)}
+.fc-ft{padding:.6rem 1.1rem;border-top:1px solid var(--brd);display:flex;gap:.35rem;flex-wrap:wrap;background:var(--card)}
+/* ─── TIMELINE ─── */
+.tl{position:relative;padding-left:1.6rem;margin:1rem 0}
+.tl::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:linear-gradient(180deg,var(--teal),var(--brd) 70%,transparent)}
+.tl-i{position:relative;margin-bottom:1.1rem}
+.tl-i::before{content:'';position:absolute;left:-1.37rem;top:5px;width:7px;height:7px;border-radius:50%;background:var(--teal);border:2px solid var(--bg);box-shadow:0 0 8px var(--tglow)}
+.tl-i h4{font-weight:700;font-size:.87rem;color:var(--txb);margin-bottom:.2rem}
+.tl-i p{font-size:.81rem;color:var(--tx);line-height:1.6}
+/* ─── SECTION HEADERS ─── */
+.dv{height:1px;background:linear-gradient(90deg,transparent,var(--lit),transparent);margin:1.75rem 0}
+h3.sh{font-size:1rem;font-weight:700;color:var(--txb);margin:1.6rem 0 .7rem;display:flex;align-items:center;gap:.45rem}
+h3.sh::after{content:'';flex:1;height:1px;background:var(--brd);max-width:160px}
+p.bp{font-size:.845rem;color:var(--txm);line-height:1.75;margin-bottom:.7rem}
+/* ─── HERO ─── */
+.hero{background:linear-gradient(135deg,var(--card),var(--surf));border:1px solid var(--brd);border-radius:var(--rl);padding:2rem;margin-bottom:1.6rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--brd) 1px,transparent 1px),linear-gradient(90deg,var(--brd) 1px,transparent 1px);background-size:26px 26px;opacity:.2}
+.hero::after{content:'';position:absolute;top:-40%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(45,212,191,.06),transparent 65%);pointer-events:none}
+.h-pill{display:inline-flex;align-items:center;gap:.4rem;background:var(--raise);border:1px solid var(--lit);border-radius:30px;padding:.28rem .75rem;font-family:var(--mono);font-size:.58rem;color:var(--txm);margin-bottom:1rem;position:relative;z-index:1}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pu 2s infinite}
+@keyframes pu{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.4)}50%{box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+.h-ti{font-size:clamp(1.8rem,3.5vw,2.7rem);font-weight:800;color:var(--white);line-height:1.08;margin-bottom:.85rem;position:relative;z-index:1}
+.h-ti .t{color:var(--teal)}.h-ti .g{color:var(--green)}
+.h-d{font-size:.93rem;color:var(--tx);max-width:520px;line-height:1.7;margin-bottom:1.6rem;position:relative;z-index:1;font-weight:300}
+.h-stats{display:flex;gap:1.8rem;flex-wrap:wrap;position:relative;z-index:1}
+.hs .n{font-size:1.6rem;font-weight:800;color:var(--white);line-height:1}
+.hs .l{font-family:var(--mono);font-size:.55rem;color:var(--tx);letter-spacing:.08em;text-transform:uppercase;margin-top:.15rem}
+/* ─── NETWORK MAP ─── */
+.nm{background:#01030a;border:1px solid var(--brd);border-radius:var(--rl);padding:1.4rem;font-family:var(--mono);font-size:.68rem;color:var(--tx);overflow-x:auto;line-height:2.1}
+.nb{border:1px solid;border-radius:4px;padding:.15rem .6rem;font-size:.65rem;white-space:nowrap;display:inline-block;font-weight:700}
+.nb-t{border-color:rgba(45,212,191,.5);color:var(--teal);background:var(--tdim)}
+.nb-g{border-color:rgba(74,222,128,.5);color:var(--green);background:var(--gdim)}
+.nb-a{border-color:rgba(251,191,36,.5);color:var(--amber);background:var(--adim)}
+.nb-p{border-color:rgba(167,139,250,.5);color:var(--purple);background:var(--pdim)}
+.nb-r{border-color:rgba(248,113,113,.5);color:var(--red);background:var(--rdim)}
+.ip{font-size:.58rem;color:var(--tx);opacity:.5;margin-left:.3rem}
+/* ─── RISK HEATMAP ─── */
+.hm-wrap{background:var(--card);border:1px solid var(--brd);border-radius:var(--rl);padding:1.4rem;overflow-x:auto}
+.hm-grid{display:grid;grid-template-columns:28px repeat(5,1fr);gap:3px;min-width:320px}
+.hm-cell{border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.62rem;font-weight:700;padding:.4rem;flex-direction:column;gap:1px;cursor:default;transition:transform .15s}
+.hm-cell:hover{transform:scale(1.08);z-index:2;position:relative}
+.hm-lbl{display:flex;align-items:center;justify-content:flex-end;font-family:var(--mono);font-size:.58rem;color:var(--tx);padding-right:.4rem}
+.hm-header{font-family:var(--mono);font-size:.58rem;color:var(--tx);text-align:center;padding:.25rem 0}
+.hm-rid{font-size:.52rem;color:rgba(255,255,255,.7)}
+/* POA&M STATUS */
+.poam-open{background:var(--rdim);color:var(--red);border:1px solid rgba(248,113,113,.25);font-family:var(--mono);font-size:.57rem;padding:.12rem .4rem;border-radius:3px}
+.poam-prog{background:var(--adim);color:var(--amber);border:1px solid rgba(251,191,36,.25);font-family:var(--mono);font-size:.57rem;padding:.12rem .4rem;border-radius:3px}
+.poam-done{background:var(--gdim);color:var(--green);border:1px solid rgba(74,222,128,.25);font-family:var(--mono);font-size:.57rem;padding:.12rem .4rem;border-radius:3px}
+</style>
+</head>
+<body>
+
+<button id="mb" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+
+<aside id="sb">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-ico">🏦</div>
+      <div>
+        <div class="sb-nm">CSFC <span>GRC Lab</span></div>
+        <div class="sb-tag">FULL PACKAGE · READY-TO-RUN</div>
+      </div>
+    </div>
+  </div>
+  <div class="sb-prog">
+    <div class="sp-row"><span>Progress</span><strong id="pp">0%</strong></div>
+    <div class="sp-bar"><div class="sp-fill" id="pf"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Overview</div>
+    <div class="ni on" data-p="home" onclick="gp(this)"><span class="ni-i">🏠</span><span class="ni-l">Lab Overview</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="company" onclick="gp(this)"><span class="ni-i">🏢</span><span class="ni-l">CSFC Scenario</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="data" onclick="gp(this)"><span class="ni-i">💾</span><span class="ni-l">Sample Data Guide</span><span class="nc">✓</span></div>
+
+    <div class="sb-sec">Deploy Scripts</div>
+    <div class="ni" data-p="s1" onclick="gp(this)"><span class="ni-i">🪟</span><span class="ni-l">Script 1 · AD Setup</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="s2" onclick="gp(this)"><span class="ni-i">🗄️</span><span class="ni-l">Script 2 · Vuln App + DB</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="s3" onclick="gp(this)"><span class="ni-i">👁️</span><span class="ni-l">Script 3 · Wazuh Rules</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="s4" onclick="gp(this)"><span class="ni-i">📋</span><span class="ni-l">Script 4 · OpenRMF</span><span class="nc">✓</span></div>
+
+    <div class="sb-sec">GRC Exercises</div>
+    <div class="ni" data-p="e1" onclick="gp(this)"><span class="ni-i">🔍</span><span class="ni-l">Ex 1 · Network Discovery</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="e2" onclick="gp(this)"><span class="ni-i">🔑</span><span class="ni-l">Ex 2 · AD Compliance Audit</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="e3" onclick="gp(this)"><span class="ni-i">⚠️</span><span class="ni-l">Ex 3 · Vulnerability Scan</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="e4" onclick="gp(this)"><span class="ni-i">🇪🇺</span><span class="ni-l">Ex 4 · GDPR Discovery</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="e5" onclick="gp(this)"><span class="ni-i">🚨</span><span class="ni-l">Ex 5 · Incident Response</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="e6" onclick="gp(this)"><span class="ni-i">💉</span><span class="ni-l">Ex 6 · Web App / SQLi</span><span class="nc">✓</span></div>
+
+    <div class="sb-sec">Reference &amp; Docs</div>
+    <div class="ni" data-p="rr" onclick="gp(this)"><span class="ni-i">📊</span><span class="ni-l">Risk Register + Heatmap</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="poam" onclick="gp(this)"><span class="ni-i">📅</span><span class="ni-l">POA&amp;M Tracker</span><span class="nc">✓</span></div>
+    <div class="ni" data-p="fixes" onclick="gp(this)"><span class="ni-i">🔧</span><span class="ni-l">Troubleshooting</span><span class="nc">✓</span></div>
+  </nav>
+  <div class="sb-ft">CSFC GRC Lab · All data fictional<br>Educational purposes only</div>
+</aside>
+
+<div id="main">
+<div id="tb">
+  <div class="tb-c">CSFC GRC Lab › <span class="cur" id="tb-cur">Lab Overview</span></div>
+  <div class="tb-r">
+    <span class="bd bg" id="dn-badge" style="display:none">✓ <span id="dn-n">0</span> done</span>
+    <button class="btn btn-g" onclick="resetProg()">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: HOME
+══════════════════════════════════════════ -->
+<div class="pg on" id="pg-home">
+  <div class="hero">
+    <div class="h-pill"><span class="pulse"></span>CYBERSHIELD FINANCIAL CORP — LAB ACTIVE</div>
+    <div class="h-ti">Pre-Built <span class="t">GRC Lab</span><br><span class="g">Everything Loaded</span></div>
+    <p class="h-d">50 AD users with real misconfigs. 40 customers with PAN + CVV + SSN in a vulnerable fintech app. Wazuh custom rules. OpenRMF STIG checklists. 6 guided exercises. 15-entry POA&amp;M. All ready to run.</p>
+    <div class="h-stats">
+      <div class="hs"><div class="n">50</div><div class="l">AD Users</div></div>
+      <div class="hs"><div class="n">40</div><div class="l">Customers</div></div>
+      <div class="hs"><div class="n">22</div><div class="l">Findings</div></div>
+      <div class="hs"><div class="n">6</div><div class="l">Exercises</div></div>
+      <div class="hs"><div class="n">4</div><div class="l">Scripts</div></div>
+      <div class="hs"><div class="n">15</div><div class="l">POA&amp;M Items</div></div>
+    </div>
+  </div>
+
+  <div class="cl c-info"><span class="cl-i">🚀</span><div><strong>Quick Start</strong>Run 4 deploy scripts on your VMs → Work through 6 exercises in order → Document every finding → Close POA&amp;M items. All sample data is pre-built — just run scripts, then start exercising.</div></div>
+
+  <h3 class="sh">What's in Each VM After Scripts Run</h3>
+  <div class="gr g3">
+    <div class="sc"><div class="sc-i si-r">🪟</div><div><div class="sc-n" style="color:var(--teal)">50</div><div class="sc-l">AD users, 8 OUs, weak GPO, stale accounts, contractor access, file shares with PAN/PII</div></div></div>
+    <div class="sc"><div class="sc-i si-a">🗄️</div><div><div class="sc-n" style="color:var(--amber)">40</div><div class="sc-l">Customers with card numbers, CVV, SSN, 15 suspicious AML transactions, exploitable Flask app</div></div></div>
+    <div class="sc"><div class="sc-i si-g">👁️</div><div><div class="sc-n" style="color:var(--green)">8</div><div class="sc-l">Custom Wazuh rules mapped to PCI-DSS, GDPR, NIST. Pre-injected events. FIM on sensitive paths</div></div></div>
+    <div class="sc"><div class="sc-i si-p">📋</div><div><div class="sc-n" style="color:var(--purple)">22</div><div class="sc-l">Pre-populated STIG checklists in OpenRMF with known findings and POA&amp;M entries</div></div></div>
+    <div class="sc"><div class="sc-i si-t">🔍</div><div><div class="sc-n" style="color:var(--teal)">6</div><div class="sc-l">Guided exercises with step-by-step commands, expected outputs, and documentation templates</div></div></div>
+    <div class="sc"><div class="sc-i si-r">🔴</div><div><div class="sc-n" style="color:var(--red)">15</div><div class="sc-l">POA&amp;M items pre-loaded with owners, deadlines, and resource estimates — ready to close</div></div></div>
+  </div>
+
+  <h3 class="sh">Lab Network</h3>
+  <div class="nm">
+    <div style="margin-bottom:.6rem;font-size:.58rem;opacity:.4;letter-spacing:.12em">CSFC LAB — 192.168.56.0/24 (VirtualBox Host-Only Adapter)</div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin:.2rem 0"><span class="nb nb-t">CSFC-DC01</span><span class="ip">192.168.56.10</span><span style="opacity:.35">Windows Server 2022 · AD/DNS/GPO · 50 users · PAN/PII file shares</span></div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin:.2rem 0"><span class="nb nb-g">CSFC-WAZUH</span><span class="ip">192.168.56.20</span><span style="opacity:.35">Ubuntu 22.04 · Wazuh SIEM · PCI-DSS/GDPR dashboards · custom rules</span></div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin:.2rem 0"><span class="nb nb-a">CSFC-KALI</span><span class="ip">192.168.56.30</span><span style="opacity:.35">Kali Linux · OpenVAS · Lynis · nmap · exercise runner script</span></div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin:.2rem 0"><span class="nb nb-p">CSFC-WEBAPP</span><span class="ip">192.168.56.40</span><span style="opacity:.35">Ubuntu 22.04 · Flask app :5000 · PostgreSQL :5432 · anon FTP :21</span></div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin:.2rem 0"><span class="nb nb-g">CSFC-OPENRMF</span><span class="ip">192.168.56.50</span><span style="opacity:.35">Ubuntu 22.04 · OpenRMF Docker · pre-loaded STIG checklists</span></div>
+  </div>
+
+  <h3 class="sh">Deployment Order</h3>
+  <div class="tl">
+    <div class="tl-i"><h4>① Windows Server 2022 (CSFC-DC01) — Script 1</h4><p>Creates 50 users, 10 security groups, 8 OUs, file shares with unencrypted PAN + PII + credentials. Applies intentionally weak password GPO. ~5 mins.</p></div>
+    <div class="tl-i"><h4>② Ubuntu Webapp VM (CSFC-WEBAPP) — Script 2</h4><p>Installs PostgreSQL with 40 customers, 10 card records, 15 transactions (including AML flags). Deploys vulnerable Flask fintech app. Sets up weak SSH + anonymous FTP. ~15 mins.</p></div>
+    <div class="tl-i"><h4>③ Wazuh Server (CSFC-WAZUH) — Script 3 (after Wazuh installed)</h4><p>Adds 8 custom CSFC detection rules. Configures FIM for sensitive file paths. Creates pre-populated PCI-DSS gap analysis and 15-entry POA&amp;M. ~5 mins.</p></div>
+    <div class="tl-i"><h4>④ OpenRMF Server (CSFC-OPENRMF) — Script 4</h4><p>Deploys OpenRMF via Docker Compose. Creates CSFC system package with pre-loaded Windows Server STIG, pre-filled with 22 findings, and POA&amp;M linked to AD misconfigs. ~10 mins.</p></div>
+    <div class="tl-i"><h4>⑤ Kali Linux (CSFC-KALI) — Copy Script 4</h4><p>Copy <code style="font-family:var(--mono);color:var(--teal)">04_CSFC_GRC_Exercises.sh</code> to Kali. Run it to get the interactive exercise menu. All 6 exercises run from here.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: COMPANY SCENARIO
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-company">
+  <div class="ph-eye">Scenario</div>
+  <h1 class="pht">Meet <span class="t">CyberShield</span> Financial Corp</h1>
+  <p class="ph-d">Your fictional employer. A mid-size fintech processing card payments for 40+ countries with a fresh incident, three upcoming audits, and you as the new junior GRC analyst.</p>
+
+  <div class="cl c-danger"><span class="cl-i">🚨</span><div><strong>Active Incident — Day 1 Brief</strong>Three weeks ago developer <strong>s.dev</strong> committed <code style="font-family:var(--mono);color:var(--amber)">.env.production</code> (containing DB credentials, AWS keys, and payment API secrets) to a <strong>public GitHub repository</strong>. The file was live for 6 hours. Wazuh detected suspicious database queries from IP <code style="font-family:var(--mono)">41.66.224.10</code> (Lagos, NG) during that window. Three rapid transactions were inserted at 02:14–02:16 AM. CISO Jane Lee has tasked you with a full compliance review before the Q4 board audit in 8 weeks. You have access to all systems. Start now.</div></div>
+
+  <div class="gr g2" style="margin-top:1.4rem">
+    <div>
+      <div class="cd" style="margin-bottom:.9rem">
+        <h4 style="font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin-bottom:.75rem">Company Profile</h4>
+        <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.83rem">
+          <div style="display:flex;gap:.75rem"><span style="color:var(--tx);min-width:110px">Industry</span><span style="color:var(--txm)">FinTech — Payment Processing</span></div>
+          <div style="display:flex;gap:.75rem"><span style="color:var(--tx);min-width:110px">Employees</span><span style="color:var(--txm)">350 (50 in lab)</span></div>
+          <div style="display:flex;gap:.75rem"><span style="color:var(--tx);min-width:110px">Customers</span><span style="color:var(--txm)">40 in lab (fictional)</span></div>
+          <div style="display:flex;gap:.75rem"><span style="color:var(--tx);min-width:110px">HQ</span><span style="color:var(--txm)">New York, NY (US) + EU ops</span></div>
+          <div style="display:flex;gap:.75rem"><span style="color:var(--tx);min-width:110px">Listing</span><span style="color:var(--txm)">Publicly traded (NYSE: CSFC)</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.85rem">
+          <span class="bd br">PCI-DSS Level 1</span><span class="bd bp">GDPR</span><span class="bd ba">SOX</span><span class="bd bt">NIST CSF</span><span class="bd bg">ISO 27001</span>
+        </div>
+      </div>
+      <div class="cd">
+        <h4 style="font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:.75rem">Known Problems (Your Finding List)</h4>
+        <div style="display:flex;flex-direction:column;gap:.38rem">
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd br">CRIT</span>No MFA on VPN or web app</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd br">CRIT</span>CVV stored in production database</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd br">CRIT</span>SQL Injection in customer search</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd br">CRIT</span>Unauthenticated API exposes PAN + SSN</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd ba">HIGH</span>45/50 AD accounts use "Password1"</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd ba">HIGH</span>No AD account lockout policy</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8sm"><span class="bd ba">HIGH</span>Terminated employee still in CDE group</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd ba">HIGH</span>Service account has Domain Admin rights</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd bp">MED</span>Anonymous FTP enabled and writable</div>
+          <div style="display:flex;gap:.5rem;align-items:center;font-size:.8rem"><span class="bd bp">MED</span>Contractor with CDE access</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="cd">
+        <h4 style="font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--green);text-transform:uppercase;margin-bottom:.75rem">50 Pre-Built Employees (Highlights)</h4>
+        <div class="tw"><table class="dt" style="font-size:.75rem">
+          <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Flag</th></tr></thead>
+          <tbody>
+            <tr><td class="mc">j.whitfield</td><td>James Whitfield</td><td>CEO</td><td><span class="bd ba">Weak pw</span></td></tr>
+            <tr><td class="mc">j.lee</td><td>Jane Lee</td><td>CISO</td><td><span class="bd bg">Strong pw</span></td></tr>
+            <tr class="fr"><td class="mc">local.admin</td><td>Local Admin</td><td>Shared Acct</td><td><span class="bd br">Dom Admin!</span></td></tr>
+            <tr class="fr"><td class="mc">svc.appserver</td><td>SVC AppServer</td><td>Service Acct</td><td><span class="bd br">Dom Admin!</span></td></tr>
+            <tr class="fr"><td class="mc">dev.c2</td><td>Dev Contractor</td><td>Contractor</td><td><span class="bd br">CDE Access!</span></td></tr>
+            <tr class="fr"><td class="mc">o.employee</td><td>Old Employee</td><td>Terminated</td><td><span class="bd br">Still active!</span></td></tr>
+            <tr class="fr"><td class="mc">test.user</td><td>Test User</td><td>Test Acct</td><td><span class="bd br">IT Admin!</span></td></tr>
+            <tr><td colspan="4" style="color:var(--tx);font-size:.72rem;text-align:center">+ 43 more employees · all using Password1</td></tr>
+          </tbody>
+        </table></div>
+        <p style="font-size:.74rem;color:var(--red);margin-top:.6rem">Red rows = GRC findings you must document &amp; fix</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: SAMPLE DATA GUIDE
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-data">
+  <div class="ph-eye">Pre-Built Data</div>
+  <h1 class="pht">Sample <span class="t">Data</span> Guide</h1>
+  <p class="ph-d">Every database record, file, credential, and transaction pre-loaded in the lab. Reference this to know exactly what exists and where to find each violation.</p>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'dt','dt-db')">🗄️ Database Records</button>
+    <button class="tab-btn" onclick="tb(this,'dt','dt-files')">📁 File Shares</button>
+    <button class="tab-btn" onclick="tb(this,'dt','dt-creds')">🔑 Credentials</button>
+    <button class="tab-btn" onclick="tb(this,'dt','dt-txns')">💳 AML Transactions</button>
+    <button class="tab-btn" onclick="tb(this,'dt','dt-stig')">📋 STIG / OpenRMF</button>
+  </div>
+  <div id="dt">
+    <div class="tp on" id="dt-db">
+      <div class="cl c-danger"><span class="cl-i">🚨</span><div><strong>PCI-DSS + GDPR Violations in the Database</strong>The database contains CVV values stored in plain text, full unmasked PANs, and SSNs. These are exactly the violations a QSA auditor would flag. Your job: find them, document findings, prescribe remediation, and close them in the POA&amp;M.</div></div>
+      <h3 class="sh">customers table (40 rows)</h3>
+      <div class="tw"><table class="dt">
+        <thead><tr><th>Column</th><th>Example Value</th><th>Violation</th><th>Framework</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td class="mc">ssn</td><td>847-23-9134</td><td><span class="bd br">PLAIN TEXT PII</span></td><td>GDPR Art 5(1)(f), Art 9</td></tr>
+          <tr class="fr"><td class="mc">dob</td><td>1985-03-14</td><td><span class="bd ba">PII unencrypted</span></td><td>GDPR Art 5, Art 25</td></tr>
+          <tr><td class="mc">risk_rating</td><td>HIGH (RU, IR, AE)</td><td><span class="bd bp">AML exercise data</span></td><td>BSA / FinCEN</td></tr>
+          <tr><td class="mc">account_balance</td><td>$892,340.00</td><td><span class="bd bp">High-value targets</span></td><td>GDPR Art 25</td></tr>
+        </tbody>
+      </table></div>
+      <h3 class="sh">payment_cards table (10 rows)</h3>
+      <div class="tw"><table class="dt">
+        <thead><tr><th>Column</th><th>Example Value</th><th>Violation</th><th>Framework</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td class="mc">card_number</td><td>4532789123456789</td><td><span class="bd br">FULL PAN UNMASKED</span></td><td>PCI-DSS Req 3.4.1 CRITICAL</td></tr>
+          <tr class="fr"><td class="mc">cvv</td><td>847</td><td><span class="bd br">CVV STORED — PROHIBITED</span></td><td>PCI-DSS Req 3.3.1 CRITICAL</td></tr>
+          <tr class="fr"><td class="mc">expiry_month/year</td><td>09 / 2026</td><td><span class="bd ba">SAD retention risk</span></td><td>PCI-DSS Req 3.3</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cl c-info"><span class="cl-i">💡</span><div><strong>How to Access</strong>From Kali: <code style="font-family:var(--mono);color:var(--amber)">psql -h 192.168.56.40 -U csfc_readonly -d csfc_production -c "SELECT first_name,ssn,account_balance FROM customers LIMIT 5;"</code> — The read-only user can still read SSNs because permissions are overly broad (another finding!).</div></div>
+    </div>
+    <div class="tp" id="dt-files">
+      <h3 class="sh">SMB File Shares on CSFC-DC01 (192.168.56.10)</h3>
+      <div class="gr g2">
+        <div class="cd"><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber);margin-bottom:.5rem">\\CSFC-DC01\CSFC_Finance$</div><p style="font-size:.81rem;color:var(--tx);line-height:1.65"><strong style="color:var(--red)">Q3_transactions_UNENCRYPTED.csv</strong> — 1,000 rows of transactions including full PANs (card numbers) and cardholder names in plain text CSV. Accessible to GRP_Finance + GRP_IT_Admins.<br><br>Findings: <span class="bd br">PCI-DSS 3.4.1</span> <span class="bd bp">GDPR Art 5</span></p></div>
+        <div class="cd"><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber);margin-bottom:.5rem">\\CSFC-DC01\CSFC_HR$</div><p style="font-size:.81rem;color:var(--tx);line-height:1.65"><strong style="color:var(--red)">Salary_Register_2024.csv</strong> — 50 employee records with full name, SSN, date of birth, bank account numbers, and salary. Unencrypted.<br><br>Findings: <span class="bd br">GDPR Art 9 Special Category</span> <span class="bd ba">No encryption</span></p></div>
+        <div class="cd"><div style="font-family:var(--mono);font-size:.68rem;color:var(--red);margin-bottom:.5rem">\\CSFC-DC01\CSFC_Engineering$</div><p style="font-size:.81rem;color:var(--tx);line-height:1.65"><strong style="color:var(--red)">.env.production</strong> — The incident file. Contains DB password, AWS access keys, payment gateway API key, JWT secret. This is what was leaked to GitHub.<br><br>Findings: <span class="bd br">CRITICAL — Incident root cause</span></p></div>
+        <div class="cd"><div style="font-family:var(--mono);font-size:.68rem;color:var(--red);margin-bottom:.5rem">\\CSFC-DC01\CSFC_Shared (Everyone!)</div><p style="font-size:.81rem;color:var(--tx);line-height:1.65"><strong style="color:var(--amber)">Network_Topology.txt</strong> — Internal IP ranges, server names, and notes about unpatched CVEs. Share mapped to <strong style="color:var(--red)">Everyone</strong> — any domain user (including contractors) can read.<br><br>Findings: <span class="bd br">CIS Control 3</span> <span class="bd ba">PCI-DSS 7.2</span></p></div>
+      </div>
+    </div>
+    <div class="tp" id="dt-creds">
+      <div class="cl c-danger"><span class="cl-i">⚠️</span><div><strong>Lab-Only Credentials</strong>These credentials are intentionally weak and exist only inside your isolated VirtualBox lab network (192.168.56.0/24). They demonstrate real-world password anti-patterns — never replicate in production.</div></div>
+      <div class="tw"><table class="dt">
+        <thead><tr><th>System</th><th>Username</th><th>Password</th><th>Finding ID</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td>Web App (Flask)</td><td class="mc">admin</td><td class="mc">admin123</td><td><span class="bd br">FIND-WEB-005</span></td></tr>
+          <tr class="fr"><td>Web App (Flask)</td><td class="mc">j.lee</td><td class="mc">Password1</td><td><span class="bd ba">FIND-AD-002</span></td></tr>
+          <tr class="fr"><td>PostgreSQL DB</td><td class="mc">csfc_admin</td><td class="mc">admin123</td><td><span class="bd br">FIND-DB-001</span></td></tr>
+          <tr class="fr"><td>PostgreSQL DB</td><td class="mc">csfc_readonly</td><td class="mc">readonly</td><td><span class="bd br">FIND-DB-002</span></td></tr>
+          <tr class="fr"><td>AD (45 users)</td><td class="mc">[any user]</td><td class="mc">Password1</td><td><span class="bd br">FIND-AD-002</span></td></tr>
+          <tr class="fr"><td>FTP Anonymous</td><td class="mc">anonymous</td><td class="mc">(any email)</td><td><span class="bd br">FIND-NET-003</span></td></tr>
+          <tr><td>Wazuh Dashboard</td><td class="mc">admin</td><td class="mc">[set at install]</td><td><span class="bd bg">Change at first login</span></td></tr>
+          <tr><td>OpenRMF</td><td class="mc">admin</td><td class="mc">openrmf1234!</td><td><span class="bd ba">Change after setup</span></td></tr>
+          <tr><td>Kali Linux</td><td class="mc">kali</td><td class="mc">kali</td><td><span class="bd ba">Change immediately</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="tp" id="dt-txns">
+      <h3 class="sh">Pre-Loaded Suspicious Transactions (AML Exercise)</h3>
+      <p class="bp">These 6 suspicious transaction patterns are in the database and visible at <code style="font-family:var(--mono);color:var(--teal)">http://192.168.56.40:5000/transactions/suspicious</code>. Your exercise: determine if each requires a SAR (Suspicious Activity Report) filing under BSA/FinCEN rules.</p>
+      <div class="tw"><table class="dt">
+        <thead><tr><th>Customer</th><th>Amount</th><th>Country</th><th>AML Flag</th><th>Why It's Suspicious</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td>Amir Al-Rashid</td><td class="mc">3× ~$9,700</td><td>🇦🇪 AE</td><td><span class="bd br">STRUCTURING</span></td><td>Three wires of $9,800/$9,750/$9,600 within 10 minutes — classic structuring to stay below $10k CTR threshold</td></tr>
+          <tr class="fr"><td>Nina Petrova</td><td class="mc">$50,000</td><td>🇷🇺 RU</td><td><span class="bd br">LARGE CASH</span></td><td>$50,000 ATM withdrawal from Russia. High-risk country, large cash = SAR required</td></tr>
+          <tr class="fr"><td>Olga Ivanova</td><td class="mc">$45,000</td><td>🇷🇺 RU</td><td><span class="bd br">SANCTIONS RISK</span></td><td>International wire to Russia — check OFAC SDN list. Account under review (pending status)</td></tr>
+          <tr class="fr"><td>Dmitri Volkov</td><td class="mc">$75,000</td><td>🇷🇺 RU</td><td><span class="bd br">SANCTIONS RISK</span></td><td>$780k balance + outbound wire to Russia. PEP/sanctions check required. Almost certainly SAR territory</td></tr>
+          <tr class="fr"><td>Emma Wilson</td><td class="mc">3× $2,500</td><td>🇳🇬🇬🇭🇨🇮</td><td><span class="bd br">UNUSUAL PATTERN</span></td><td>3 transactions in 2 minutes at 02:14 AM across 3 West African countries — fraud/account takeover pattern</td></tr>
+          <tr class="fr"><td>Leila Hosseini</td><td class="mc">$45,200</td><td>🇮🇷 IR</td><td><span class="bd br">SANCTIONS RISK</span></td><td>Iranian customer — OFAC primary sanctions apply. Transaction should have been blocked pre-processing</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cl c-warn"><span class="cl-i">📝</span><div><strong>Your AML Task</strong>For each transaction: (1) Confirm the suspicious activity type, (2) Apply the $5,000+ SAR threshold test, (3) Decide: file SAR / close / escalate, (4) Note which OFAC sanctions list to check for RU/IR transactions. Document your analysis as evidence for the PCI-DSS Req 10 / AML compliance exercise.</div></div>
+    </div>
+    <div class="tp" id="dt-stig">
+      <h3 class="sh">OpenRMF Pre-Loaded STIG Findings</h3>
+      <p class="bp">After running Script 4, OpenRMF at <code style="font-family:var(--mono);color:var(--teal)">http://192.168.56.50:8080</code> contains a CSFC system package with the Windows Server 2022 STIG loaded and pre-filled with findings that match the AD misconfigs you created in Script 1.</p>
+      <div class="tw"><table class="dt">
+        <thead><tr><th>STIG ID</th><th>Finding</th><th>Severity</th><th>Status</th><th>Linked AD Finding</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td class="mc">V-254239</td><td>Account lockout must be configured</td><td><span class="bd br">CAT I</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-003</td></tr>
+          <tr class="fr"><td class="mc">V-254247</td><td>Min password length must be 14 chars</td><td><span class="bd br">CAT II</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-002</td></tr>
+          <tr class="fr"><td class="mc">V-254248</td><td>Password complexity must be enforced</td><td><span class="bd br">CAT II</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-002</td></tr>
+          <tr class="fr"><td class="mc">V-254249</td><td>Max password age must not exceed 60 days</td><td><span class="bd br">CAT II</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-002</td></tr>
+          <tr class="fr"><td class="mc">V-254335</td><td>Shared service accounts must not be used</td><td><span class="bd br">CAT II</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-001</td></tr>
+          <tr class="fr"><td class="mc">V-254478</td><td>Inactive accounts must be disabled after 35 days</td><td><span class="bd br">CAT II</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-005</td></tr>
+          <tr class="fr"><td class="mc">V-254333</td><td>Security event log must be 1024MB minimum</td><td><span class="bd ba">CAT III</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-AD-008</span></td></tr>
+          <tr><td class="mc">V-254200</td><td>Windows updates must be current</td><td><span class="bd br">CAT I</span></td><td><span class="poam-open">OPEN</span></td><td>FIND-NET-005</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cl c-info"><span class="cl-i">💡</span><div><strong>OpenRMF Workflow</strong>Login → CSFC System Package → STIG Checklist → review each open finding → mark as "Not a Finding" once you've verified it's fixed → POA&amp;M auto-generates for open items. This mirrors exactly what DISA RMF analysts do daily.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: SCRIPT 1 — AD SETUP
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-s1">
+  <div class="ph-eye">Deploy Script 1 of 4</div>
+  <h1 class="pht">Active Directory <span class="t">Population Script</span></h1>
+  <p class="ph-d">Run this PowerShell script on your Windows Server 2022 Domain Controller after AD DS promotion. Creates 50 users, 10 groups, 8 OUs, file shares with real-looking sensitive data, and intentionally weak policy settings.</p>
+  <div class="cl c-info"><span class="cl-i">📋</span><div><strong>Details</strong>File: <code style="font-family:var(--mono);color:var(--amber)">01_CSFC_AD_Setup.ps1</code> · Run on: CSFC-DC01 (192.168.56.10) · As: CSFC\Administrator · Estimated time: 5 minutes</div></div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'s1t','s1-how')">▶ How to Run</button>
+    <button class="tab-btn" onclick="tb(this,'s1t','s1-users')">👥 Users Created</button>
+    <button class="tab-btn" onclick="tb(this,'s1t','s1-policy')">🔴 Policy Findings</button>
+  </div>
+  <div id="s1t">
+    <div class="tp on" id="s1-how">
+      <ul class="ck" id="ck-s1">
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Promote Windows Server to DC (domain: csfc.local) — see previous Setup Guide</span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Copy <code style="font-family:var(--mono);color:var(--teal)">01_CSFC_AD_Setup.ps1</code> to the server (shared folder, USB, or RDP file transfer)</span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Open PowerShell as Administrator on DC</span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Run: <code style="font-family:var(--mono);color:var(--teal)">Set-ExecutionPolicy Bypass -Scope Process -Force</code></span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Run: <code style="font-family:var(--mono);color:var(--teal)">.\01_CSFC_AD_Setup.ps1</code> — watch for green [+] lines</span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Verify: open ADUC (dsa.msc) → confirm 50 users across 8 OUs</span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx">Verify: check <code style="font-family:var(--mono);color:var(--teal)">C:\CSFC_Data\Finance\Q3_transactions_UNENCRYPTED.csv</code> exists</span></li>
+        <li class="ck-i" onclick="chk(this,'s1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Take a VM snapshot now!</strong> Label: "After-AD-Population"</span></li>
+      </ul>
+      <div class="cb"><div class="cb-hd"><span class="cb-lang">PowerShell — Expected Output</span><button class="cp" onclick="cp(this)">Copy</button></div>
+      <div class="cb-b"><span class="cc"># Abridged — you'll see all 50 names scroll by</span>
+<span class="ou">[+] Creating Organizational Units...</span>
+<span class="ou">    Created OU: IT-Security</span>
+<span class="ou">    Created OU: Finance  ...</span>
+<span class="ou">[+] Creating 50 CSFC employee accounts...</span>
+<span class="ou">    [+] James Whitfield (j.whitfield) - CEO</span>
+<span class="ou">    [+] Jane Lee (j.lee) - CISO</span>
+<span class="ou">    [+] local.admin → added to Domain Admins  ← FINDING</span>
+<span class="ou">    ... (50 total)</span>
+<span class="wl">[+] Applying WEAK security policies (GRC exercise findings)...</span>
+<span class="wl">    [FINDING-001] Weak password policy applied (min 6 chars, no complexity)</span>
+<span class="wl">    [FINDING-002] No account lockout configured</span>
+<span class="wl">    [FINDING-003] Security event log set to 1MB</span>
+<span class="ou">[+] Creating file shares with sensitive data...</span>
+<span class="wl">    [FINDING-006] Unencrypted cardholder data in Finance share</span>
+<span class="wl">    [FINDING-007] PII (SSN, salary) stored unencrypted in HR share</span>
+<span class="wl">    [FINDING-009] CSFC_Shared mapped to Everyone</span>
+<span class="ou">Total users created: 50</span></div></div>
+    </div>
+    <div class="tp" id="s1-users">
+      <div class="tw"><table class="dt">
+        <thead><tr><th>OU</th><th>Username</th><th>Name</th><th>Title</th><th>Password</th><th>Finding</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--raise)"><td colspan="6" style="font-family:var(--mono);font-size:.58rem;color:var(--teal);padding:.35rem .85rem">EXECUTIVE — 5 users</td></tr>
+          <tr><td>Executive</td><td class="mc">j.whitfield</td><td>James Whitfield</td><td>CEO</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">Weak</span></td></tr>
+          <tr><td>Executive</td><td class="mc">p.sharma</td><td>Priya Sharma</td><td>CFO</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">Weak</span></td></tr>
+          <tr><td>IT-Security</td><td class="mc">j.lee</td><td>Jane Lee</td><td>CISO</td><td class="mc" style="color:var(--green)">C$FC@dm1n2024!</td><td><span class="bd bg">Strong</span></td></tr>
+          <tr><td>Executive</td><td class="mc">m.reed</td><td>Marcus Reed</td><td>CTO</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">Weak</span></td></tr>
+          <tr style="background:var(--raise)"><td colspan="6" style="font-family:var(--mono);font-size:.58rem;color:var(--red);padding:.35rem .85rem">INTENTIONAL FINDINGS — 7 users</td></tr>
+          <tr class="fr"><td>IT-Security</td><td class="mc">local.admin</td><td>Local Admin</td><td>Shared Admin</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">Domain Admin</span></td></tr>
+          <tr class="fr"><td>ServiceAccounts</td><td class="mc">svc.appserver</td><td>SVC AppServer</td><td>Service Acct</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">Domain Admin</span></td></tr>
+          <tr class="fr"><td>ServiceAccounts</td><td class="mc">svc.backup</td><td>SVC Backup</td><td>Backup Svc</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">IT Admin</span></td></tr>
+          <tr class="fr"><td>Contractors</td><td class="mc">vendor.admin</td><td>Vendor Admin</td><td>IT Contractor</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">In IT Admins</span></td></tr>
+          <tr class="fr"><td>Contractors</td><td class="mc">dev.c2</td><td>Dev Contractor2</td><td>Contract Dev</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">CDE Access</span></td></tr>
+          <tr class="fr"><td>Finance</td><td class="mc">o.employee</td><td>Old Employee</td><td>Terminated</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">Still Enabled</span></td></tr>
+          <tr class="fr"><td>IT-Security</td><td class="mc">test.user</td><td>Test User</td><td>Test Account</td><td class="mc" style="color:var(--red)">Password1</td><td><span class="bd br">IT Admin</span></td></tr>
+          <tr style="background:var(--raise)"><td colspan="6" style="font-family:var(--mono);font-size:.58rem;color:var(--tx);padding:.35rem .85rem">+ 38 regular staff (Finance, Engineering, HR, Operations) — all Password1</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="tp" id="s1-policy">
+      <div class="gr g2">
+        <div class="fc">
+          <div class="fc-h"><div><div class="fc-id">FIND-AD-001</div><div class="fc-ti">Shared Account in Domain Admins</div></div><span class="bd br">CRITICAL</span></div>
+          <div class="fc-bd"><p><code style="font-family:var(--mono)">local.admin</code> is a shared account in Domain Admins. Multiple staff use it — no individual accountability. Non-repudiation failure means you can't prove who did what in a forensic investigation.</p>
+          <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">PCI-DSS 8.2.1 | CIS Control 5.1 | NIST IA-2</span></div>
+          <div class="fc-r"><span class="fc-k">Fix:</span><span class="fc-v">Remove from Domain Admins, disable account, issue named admin accounts</span></div></div>
+          <div class="fc-ft"><span class="bd br">PCI-DSS 8.2.1</span><span class="bd bt">CIS 5.1</span></div>
+        </div>
+        <div class="fc">
+          <div class="fc-h"><div><div class="fc-id">FIND-AD-002</div><div class="fc-ti">45/50 Accounts Use Password1</div></div><span class="bd br">CRITICAL</span></div>
+          <div class="fc-bd"><p>45 of 50 accounts use "Password1" — satisfies 0 current complexity requirements (they're all disabled) and appears in every common wordlist. An automated spray attack would own the domain in minutes.</p>
+          <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">PCI-DSS 8.2.4 (min 12 chars) | CIS 5.2</span></div>
+          <div class="fc-r"><span class="fc-k">Fix:</span><span class="fc-v">Enforce strong GPO + force password reset for all users</span></div></div>
+          <div class="fc-ft"><span class="bd br">PCI-DSS 8.2.4</span><span class="bd ba">CIS 5.2</span></div>
+        </div>
+        <div class="fc">
+          <div class="fc-h"><div><div class="fc-id">FIND-AD-003</div><div class="fc-ti">No Account Lockout Policy</div></div><span class="bd br">CRITICAL</span></div>
+          <div class="fc-bd"><p>LockoutThreshold = 0 (disabled). Unlimited authentication attempts allowed. Combined with FIND-AD-002, the entire domain is trivially brute-forceable from a single workstation.</p>
+          <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">PCI-DSS 8.3.9 (lock after 10 attempts)</span></div>
+          <div class="fc-r"><span class="fc-k">Fix:</span><span class="fc-v">Set-ADDefaultDomainPasswordPolicy -LockoutThreshold 10</span></div></div>
+          <div class="fc-ft"><span class="bd br">PCI-DSS 8.3.9</span></div>
+        </div>
+        <div class="fc">
+          <div class="fc-h"><div><div class="fc-id">FIND-AD-004</div><div class="fc-ti">Contractor Has CDE Access</div></div><span class="bd br">CRITICAL</span></div>
+          <div class="fc-bd"><p><code style="font-family:var(--mono)">dev.c2</code> (external contractor) is in GRP_CardholderData. PCI-DSS requires CDE access be restricted to those with a documented business need. External contractors should have just-in-time access only.</p>
+          <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">PCI-DSS 7.2.1 | CIS Control 6.3</span></div></div>
+          <div class="fc-ft"><span class="bd br">PCI-DSS 7.2.1</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: SCRIPT 2 — VULN APP
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-s2">
+  <div class="ph-eye">Deploy Script 2 of 4</div>
+  <h1 class="pht">Vulnerable App <span class="t">+ Database</span></h1>
+  <p class="ph-d">Deploys a realistic fintech web portal backed by a PostgreSQL database. 40 customers with payment cards, AML-flagged transactions, and 6 intentional web vulnerabilities mapped to PCI-DSS findings.</p>
+  <div class="cl c-info"><span class="cl-i">📋</span><div><strong>Details</strong>File: <code style="font-family:var(--mono);color:var(--amber)">02_CSFC_VulnApp_Setup.sh</code> · Run on: Ubuntu 22.04 (192.168.56.40) · As: sudo · Estimated time: 15 minutes</div></div>
+
+  <h3 class="sh">Run Commands</h3>
+  <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH — Ubuntu 22.04</span><button class="cp" onclick="cp(this)">Copy</button></div>
+  <div class="cb-b"><span class="cc"># On CSFC-WEBAPP (192.168.56.40)</span>
+<span class="pp">$</span> <span class="cm">sudo apt install dos2unix -y</span>
+<span class="pp">$</span> <span class="cm">dos2unix 02_CSFC_VulnApp_Setup.sh</span>    <span class="cc"># Fix Windows line endings if needed</span>
+<span class="pp">$</span> <span class="cm">chmod +x 02_CSFC_VulnApp_Setup.sh && sudo bash ./02_CSFC_VulnApp_Setup.sh</span>
+<span class="ou">...</span>
+<span class="ou">CSFC PostgreSQL database: 40 customers, 10 cards, 15 transactions loaded</span>
+<span class="ou">Vulnerable web app running at http://localhost:5000</span>
+<span class="er">[FINDING] Anonymous FTP enabled - writable!</span>
+<span class="er">[FINDING] PostgreSQL port 5432 bound to 0.0.0.0 (should be localhost)</span>
+<span class="er">[FINDING] Flask debug mode active</span>
+
+<span class="cc"># Verify</span>
+<span class="pp">$</span> <span class="cm">curl http://localhost:5000/</span>                        <span class="cc"># Returns CSFC portal HTML</span>
+<span class="pp">$</span> <span class="cm">curl http://localhost:5000/api/customers | python3 -m json.tool | head -30</span>
+<span class="cc"># Returns JSON with SSN — no authentication required!</span></div></div>
+
+  <h3 class="sh">Web App URLs</h3>
+  <div class="gr g2">
+    <div class="cd"><div style="font-family:var(--mono);font-size:.72rem;color:var(--teal);margin-bottom:.45rem">Main Portal</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber)">http://192.168.56.40:5000</div><p style="font-size:.8rem;color:var(--tx);margin-top:.45rem;line-height:1.6">Login: admin/admin123 or j.lee/Password1<br>Dashboard shows stats, customer list, suspicious transactions</p></div>
+    <div class="cd"><div style="font-family:var(--mono);font-size:.72rem;color:var(--red);margin-bottom:.45rem">🚨 Unauth API — SSN Exposed</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber)">http://192.168.56.40:5000/api/customers</div><p style="font-size:.8rem;color:var(--tx);margin-top:.45rem;line-height:1.6">No auth required. Returns 40 customers with SSN, DOB, balance. Try from Kali with curl.</p></div>
+    <div class="cd"><div style="font-family:var(--mono);font-size:.72rem;color:var(--red);margin-bottom:.45rem">🚨 Card API — Full PAN + CVV</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber)">http://192.168.56.40:5000/api/cards</div><p style="font-size:.8rem;color:var(--tx);margin-top:.45rem;line-height:1.6">Returns card number, expiry, and CVV — no auth. PCI-DSS prohibits storing CVV and this is exposed publicly.</p></div>
+    <div class="cd"><div style="font-family:var(--mono);font-size:.72rem;color:var(--amber);margin-bottom:.45rem">💉 SQL Injection Target</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber)">http://192.168.56.40:5000/customers?search=</div><p style="font-size:.8rem;color:var(--tx);margin-top:.45rem;line-height:1.6">Try <code style="font-family:var(--mono);color:var(--red)">' OR '1'='1</code> to dump all records. Classic unsanitized query injection. PCI-DSS 6.4.</p></div>
+    <div class="cd"><div style="font-family:var(--mono);font-size:.72rem;color:var(--amber);margin-bottom:.45rem">AML Suspicious Transactions</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber)">http://192.168.56.40:5000/transactions/suspicious</div><p style="font-size:.8rem;color:var(--tx);margin-top:.45rem;line-height:1.6">Shows all 6 pre-flagged suspicious transactions with AML flag labels. Requires login.</p></div>
+    <div class="cd"><div style="font-family:var(--mono);font-size:.72rem;color:var(--amber);margin-bottom:.45rem">FTP Anonymous Access</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber)">ftp://192.168.56.40 (anon)</div><p style="font-size:.8rem;color:var(--tx);margin-top:.45rem;line-height:1.6">Run: <code style="font-family:var(--mono);color:var(--teal)">ftp 192.168.56.40</code> → login as anonymous → list /pub/csfc_reports/</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: SCRIPT 3 — WAZUH
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-s3">
+  <div class="ph-eye">Deploy Script 3 of 4</div>
+  <h1 class="pht">Wazuh <span class="t">Custom Rules</span></h1>
+  <p class="ph-d">Installs 8 CSFC-specific detection rules, configures File Integrity Monitoring on sensitive paths, injects pre-built security events, and creates gap analysis + POA&amp;M documents.</p>
+  <div class="cl c-info"><span class="cl-i">📋</span><div><strong>Details</strong>File: <code style="font-family:var(--mono);color:var(--amber)">03_CSFC_Wazuh_Config.sh</code> · Run on: Wazuh server (192.168.56.20) · After: Wazuh fully installed and Windows agent connected</div></div>
+
+  <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH — Wazuh Server</span><button class="cp" onclick="cp(this)">Copy</button></div>
+  <div class="cb-b"><span class="pp">$</span> <span class="cm">sudo bash ./03_CSFC_Wazuh_Config.sh</span>
+<span class="ou">Custom rules installed: /var/ossec/etc/rules/csfc_custom_rules.xml</span>
+<span class="ou">GRC documents: /opt/csfc-grc/</span>
+<span class="ou">  gap-analysis/PCI-DSS-Gap-Analysis-CSFC.md  (22 pre-filled findings)</span>
+<span class="ou">  poam/CSFC-POAM-2024.md                     (15 POA&amp;M items)</span>
+
+<span class="cc"># Validate rules loaded correctly:</span>
+<span class="pp">$</span> <span class="cm">sudo /var/ossec/bin/wazuh-logtest</span>
+<span class="cc"># Paste: "Jun 10 12:00:00 CSFC-DC01 sshd: Accepted password for local.admin from 192.168.56.30"</span>
+<span class="cc"># Should show: Rule 100002 fires — "Shared/generic account login detected"</span></div></div>
+
+  <h3 class="sh">Custom Detection Rules (8 rules)</h3>
+  <div class="acc">
+    <div class="ac-i open"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">1</div><div class="ac-ti">Rule 100002 — Shared account login (local.admin, test.user)</div></div><div style="display:flex;gap:.4rem;align-items:center"><span class="bd br">LVL 14</span><span class="ac-ar">▶</span></div></div><div class="ac-b"><div class="ac-bi"><p>Fires when authentication events contain usernames <code style="font-family:var(--mono)">local.admin</code>, <code style="font-family:var(--mono)">vendor.admin</code>, or <code style="font-family:var(--mono)">test.user</code>. Maps to PCI-DSS 8.2.1 (unique IDs required). Shows in Wazuh's PCI-DSS compliance dashboard automatically. Try it: log into the webapp as j.lee, then check Wazuh Security Events.</p></div></div></div>
+    <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">2</div><div class="ac-ti">Rule 100010 — Audit log cleared/tampered</div></div><div style="display:flex;gap:.4rem;align-items:center"><span class="bd br">LVL 9</span><span class="ac-ar">▶</span></div></div><div class="ac-b"><div class="ac-bi"><p>Fires on Windows Event ID 1102 (security log cleared) or 4719 (audit policy changed). Maps to PCI-DSS Req 10.7. Test it by clearing the Windows Security event log on CSFC-DC01 — Wazuh will immediately fire a high-priority alert.</p></div></div></div>
+    <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">3</div><div class="ac-ti">Rule 100050 — Sensitive file modified (FIM)</div></div><div style="display:flex;gap:.4rem;align-items:center"><span class="bd ba">LVL 13</span><span class="ac-ar">▶</span></div></div><div class="ac-b"><div class="ac-bi"><p>File Integrity Monitoring watches <code style="font-family:var(--mono)">C:\CSFC_Data\Finance\</code>, <code style="font-family:var(--mono)">C:\CSFC_Data\HR\</code>, and <code style="font-family:var(--mono)">C:\CSFC_Data\Engineering\</code> in real-time. Any create/modify/delete fires this rule. Maps to PCI-DSS 11.5 (FIM required) and GDPR Art 5. Test: open and save Q3_transactions_UNENCRYPTED.csv.</p></div></div></div>
+    <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">4</div><div class="ac-ti">Rule 100070 — SQL Injection / Web Attack patterns</div></div><div style="display:flex;gap:.4rem;align-items:center"><span class="bd br">LVL 14</span><span class="ac-ar">▶</span></div></div><div class="ac-b"><div class="ac-bi"><p>Detects <code style="font-family:var(--mono)">OR 1=1</code>, <code style="font-family:var(--mono)">UNION SELECT</code>, <code style="font-family:var(--mono)">DROP TABLE</code>, and <code style="font-family:var(--mono)">script></code> in web server logs. Run the SQLi exercise (Exercise 6) and watch this rule fire. Screenshot the Wazuh alert for your evidence folder — it proves detection capability to auditors.</p></div></div></div>
+    <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">5</div><div class="ac-ti">Rule 100030 — PII DB access outside business hours</div></div><div style="display:flex;gap:.4rem;align-items:center"><span class="bd ba">LVL 11</span><span class="ac-ar">▶</span></div></div><div class="ac-b"><div class="ac-bi"><p>Fires when database authentication occurs between 10pm–6am. Maps to GDPR Art 32 (appropriate technical measures) and PCI-DSS 10.2.3 (log access to CDE). The pre-injected events at 02:14 AM will show in the dashboard — this is how the GitHub incident was detected.</p></div></div></div>
+  </div>
+
+  <h3 class="sh">Pre-Built GRC Documents (on Wazuh server)</h3>
+  <div class="gr g2">
+    <div class="cd"><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber);margin-bottom:.45rem">📋 PCI-DSS Gap Analysis</div><p style="font-size:.81rem;color:var(--tx);line-height:1.65">Pre-filled with 22 findings across 7 requirements. Shows CSFC at <strong style="color:var(--red)">23% compliance</strong>. Your task: complete the remaining requirements and add evidence screenshots from Wazuh.<br><br><code style="font-family:var(--mono);font-size:.68rem;color:var(--teal)">/opt/csfc-grc/gap-analysis/PCI-DSS-Gap-Analysis-CSFC.md</code></p></div>
+    <div class="cd"><div style="font-family:var(--mono);font-size:.68rem;color:var(--amber);margin-bottom:.45rem">📅 POA&amp;M (15 items)</div><p style="font-size:.81rem;color:var(--tx);line-height:1.65">15 items with owners, deadlines, severity, and resource estimates. Status all set to OPEN. Work through them in the lab and mark complete as you fix each finding.<br><br><code style="font-family:var(--mono);font-size:.68rem;color:var(--teal)">/opt/csfc-grc/poam/CSFC-POAM-2024.md</code></p></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: SCRIPT 4 — OPENRMF
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-s4">
+  <div class="ph-eye">Deploy Script 4 of 4</div>
+  <h1 class="pht">OpenRMF <span class="t">STIG Setup</span></h1>
+  <p class="ph-d">Deploys OpenRMF via Docker Compose on its own Ubuntu VM. Creates a CSFC system package with the Windows Server 2022 STIG pre-loaded, 8 findings marked open, and a linked POA&amp;M.</p>
+  <div class="cl c-info"><span class="cl-i">📋</span><div><strong>Details</strong>File: <code style="font-family:var(--mono);color:var(--amber)">04_CSFC_OpenRMF_Setup.sh</code> · Run on: Ubuntu 22.04 (192.168.56.50) · Requires: Docker + Docker Compose pre-installed</div></div>
+
+  <ul class="ck" id="ck-s4">
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Spin up Ubuntu 22.04 VM with 4GB RAM, 30GB disk — IP: 192.168.56.50</span></li>
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Install Docker: <code style="font-family:var(--mono);color:var(--teal)">curl -fsSL https://get.docker.com | sudo bash</code></span></li>
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Run Script 4: <code style="font-family:var(--mono);color:var(--teal)">sudo bash 04_CSFC_OpenRMF_Setup.sh</code></span></li>
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Access OpenRMF at <code style="font-family:var(--mono);color:var(--teal)">http://192.168.56.50:8080</code> — login: admin / openrmf1234!</span></li>
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Navigate to: Systems → CSFC Production → Windows Server 2022 STIG → view pre-loaded findings</span></li>
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Check POA&amp;M tab — 8 items should be pre-loaded matching the AD findings</span></li>
+    <li class="ck-i" onclick="chk(this,'s4')"><span class="ck-b">✓</span><span class="ck-tx">Take snapshot: "After-OpenRMF-Setup"</span></li>
+  </ul>
+
+  <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH — OpenRMF Setup Script</span><button class="cp" onclick="cp(this)">Copy</button></div>
+  <div class="cb-b"><span class="cc"># Install Docker + Compose first</span>
+<span class="pp">$</span> <span class="cm">curl -fsSL https://get.docker.com | sudo bash</span>
+<span class="pp">$</span> <span class="cm">sudo usermod -aG docker $USER && newgrp docker</span>
+<span class="pp">$</span> <span class="cm">sudo apt install docker-compose-plugin -y</span>
+
+<span class="cc"># Clone OpenRMF</span>
+<span class="pp">$</span> <span class="cm">git clone https://github.com/Cingulara/openrmf-docs.git</span>
+<span class="pp">$</span> <span class="cm">cd openrmf-docs</span>
+
+<span class="cc"># Start (takes ~3 mins first time)</span>
+<span class="pp">$</span> <span class="cm">docker compose up -d</span>
+
+<span class="cc"># Check status</span>
+<span class="pp">$</span> <span class="cm">docker compose ps</span>
+<span class="ou">NAME               STATUS</span>
+<span class="ou">openrmf-web        Up (healthy)</span>
+<span class="ou">openrmf-api-*      Up</span>
+<span class="ou">openrmf-mongo      Up (healthy)</span>
+<span class="ou">openrmf-keycloak   Up (healthy)</span>
+
+<span class="cc"># Access at http://192.168.56.50:8080</span>
+<span class="cc"># Login: admin / openrmf1234!</span></div></div>
+
+  <h3 class="sh">OpenRMF Lab Tasks</h3>
+  <div class="tl">
+    <div class="tl-i"><h4>Create CSFC System Package</h4><p>Systems → New System → Name: "CSFC Production Environment" → Owner: Jane Lee → Classify: Moderate Impact → Save</p></div>
+    <div class="tl-i"><h4>Upload Windows Server 2022 STIG</h4><p>Download from: <code style="font-family:var(--mono);color:var(--teal)">https://public.cyber.mil/stigs/downloads/</code> → Search "Windows Server 2022" → Download STIG zip → Upload to your CSFC system package in OpenRMF</p></div>
+    <div class="tl-i"><h4>Review Pre-Filled Findings</h4><p>The script pre-marks 8 STIG checks as "Open" matching the AD misconfigs: password policy (V-254247/248/249), account lockout (V-254239), shared accounts (V-254335), inactive accounts (V-254478). Review each.</p></div>
+    <div class="tl-i"><h4>Generate POA&amp;M</h4><p>Reports → POA&amp;M → Select your system → Export. This creates a formatted POA&amp;M showing all open findings with STIG IDs, severity, and remediation guidance — exactly what DoD/regulated orgs submit to authorizing officials.</p></div>
+    <div class="tl-i"><h4>Close a Finding (Exercise)</h4><p>Fix the AD lockout policy (see Exercise 2) → Re-run CIS-CAT Lite → Upload new results → Mark V-254239 as "Not a Finding" with evidence note. This demonstrates the full remediation workflow.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: EXERCISE 1 — NETWORK DISCOVERY
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-e1">
+  <div class="ph-eye">Exercise 1 · CIS Control 1</div>
+  <h1 class="pht">Network Discovery <span class="t">&amp; Asset Inventory</span></h1>
+  <p class="ph-d">Map the CSFC lab network, discover every host and service, find exposed ports that shouldn't be reachable, and document findings against CIS Control 1 and PCI-DSS Req 1.</p>
+  <div class="cl c-why"><span class="cl-i">🎯</span><div><strong>GRC Purpose</strong>CIS Control 1 states you can't protect what you don't know exists. CSFC's incomplete asset inventory means unknown systems could be in PCI scope without proper controls. This exercise creates the baseline every other exercise depends on. PCI-DSS Req 11.4 also requires periodic network scans.</div></div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'e1t','e1-run')">▶ Commands</button>
+    <button class="tab-btn" onclick="tb(this,'e1t','e1-out')">📊 Expected Output</button>
+    <button class="tab-btn" onclick="tb(this,'e1t','e1-doc')">📋 Document Findings</button>
+  </div>
+  <div id="e1t">
+    <div class="tp on" id="e1-run">
+      <ul class="ck" id="ck-e1">
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Ping sweep:</strong> <code style="font-family:var(--mono);color:var(--teal)">nmap -sn -T4 192.168.56.0/24</code> — list all live hosts</span></li>
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Deep scan DC:</strong> <code style="font-family:var(--mono);color:var(--teal)">nmap -sV -sC -T4 -p 53,88,135,139,389,445,3268,3389 192.168.56.10</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>WebApp scan:</strong> <code style="font-family:var(--mono);color:var(--teal)">nmap -sV -sC -T4 -p 21,22,80,443,5000,5432 192.168.56.40</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>List SMB shares:</strong> <code style="font-family:var(--mono);color:var(--teal)">smbclient -L //192.168.56.10 -N</code> — find CSFC_Shared (Everyone)</span></li>
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Test anon FTP:</strong> <code style="font-family:var(--mono);color:var(--teal)">ftp 192.168.56.40</code> → user: anonymous → check /pub/csfc_reports/</span></li>
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Run exercise script:</strong> <code style="font-family:var(--mono);color:var(--teal)">bash 04_CSFC_GRC_Exercises.sh network</code> — shows guided output</span></li>
+        <li class="ck-i" onclick="chk(this,'e1')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Document findings:</strong> Create asset inventory spreadsheet (IP, hostname, OS, services, risk)</span></li>
+      </ul>
+    </div>
+    <div class="tp" id="e1-out">
+      <div class="cb"><div class="cb-hd"><span class="cb-lang">Expected Nmap Output (192.168.56.40)</span></div>
+      <div class="cb-b"><span class="ou">PORT     STATE SERVICE    VERSION</span>
+<span class="wl">21/tcp   open  ftp        vsftpd 3.0.5</span>     <span class="cc">← FINDING: Anonymous FTP!</span>
+<span class="ou">22/tcp   open  ssh        OpenSSH 8.9p1</span>
+<span class="wl">5000/tcp open  http       Werkzeug/2.x</span>     <span class="cc">← FINDING: Flask debug mode!</span>
+<span class="wl">5432/tcp open  postgresql PostgreSQL 14</span>    <span class="cc">← FINDING: DB port exposed!</span>
+<span class="ou">|_http-title: CyberShield Financial Corp</span>
+<span class="wl">| http-auth: No authentication</span>            <span class="cc">← FINDING: Unauthenticated endpoints</span></div></div>
+      <div class="cb"><div class="cb-hd"><span class="cb-lang">Expected Nmap Output (192.168.56.10 DC)</span></div>
+      <div class="cb-b"><span class="ou">PORT     STATE SERVICE       VERSION</span>
+<span class="ou">53/tcp   open  domain        Microsoft DNS</span>
+<span class="ou">88/tcp   open  kerberos-sec</span>
+<span class="ou">389/tcp  open  ldap</span>
+<span class="ou">445/tcp  open  microsoft-ds  (SMB)</span>
+<span class="wl">3389/tcp open  ms-wbt-server RDP</span>            <span class="cc">← FINDING: RDP exposed on DC</span>
+<span class="ou">| smb-security-mode:</span>
+<span class="wl">|   message_signing: disabled</span>              <span class="cc">← FINDING: SMB signing off</span></div></div>
+    </div>
+    <div class="tp" id="e1-doc">
+      <div class="tw"><table class="dt">
+        <thead><tr><th>Finding ID</th><th>Host</th><th>Issue</th><th>Sev</th><th>Control</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td class="mc">FIND-NET-001</td><td>192.168.56.10</td><td>RDP exposed on Domain Controller</td><td><span class="bd br">HIGH</span></td><td>PCI-DSS 1.3.2</td><td>Restrict port 3389 to mgmt VLAN only</td></tr>
+          <tr class="fr"><td class="mc">FIND-NET-002</td><td>192.168.56.40</td><td>PostgreSQL port exposed to network</td><td><span class="bd br">HIGH</span></td><td>PCI-DSS 1.2.1</td><td>Bind to localhost: edit postgresql.conf</td></tr>
+          <tr class="fr"><td class="mc">FIND-NET-003</td><td>192.168.56.40</td><td>Anonymous FTP enabled + writable</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 2.2.1</td><td>anonymous_enable=NO in vsftpd.conf</td></tr>
+          <tr class="fr"><td class="mc">FIND-NET-004</td><td>192.168.56.40</td><td>Flask debug mode / no production WSGI</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 6.2.4</td><td>debug=False, deploy with Gunicorn</td></tr>
+          <tr class="fr"><td class="mc">FIND-NET-005</td><td>192.168.56.10</td><td>SMB signing disabled on DC</td><td><span class="bd bp">MED</span></td><td>CIS Control 12</td><td>Enable via GPO: Digitally sign communications</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: EXERCISE 2 — AD AUDIT
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-e2">
+  <div class="ph-eye">Exercise 2 · PCI-DSS Req 8</div>
+  <h1 class="pht">Active Directory <span class="t">Compliance Audit</span></h1>
+  <p class="ph-d">Audit CSFC's AD against PCI-DSS Requirement 8. Find misconfigurations Script 1 intentionally planted. Document each as a finding with evidence, then remediate using the provided PowerShell commands.</p>
+  <div class="cl c-why"><span class="cl-i">🎯</span><div><strong>GRC Purpose</strong>PCI-DSS Req 8 is one of the most commonly failed requirements. Every QSA auditor will run these exact checks. Demonstrating you know how to audit AD, document the findings in a risk register, and fix them with GPO changes is core GRC analyst work.</div></div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'e2t','e2-audit')">▶ Audit Commands</button>
+    <button class="tab-btn" onclick="tb(this,'e2t','e2-finds')">🔴 Expected Findings</button>
+    <button class="tab-btn" onclick="tb(this,'e2t','e2-fix')">🔧 Remediation</button>
+  </div>
+  <div id="e2t">
+    <div class="tp on" id="e2-audit">
+      <ul class="ck" id="ck-e2">
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Check password policy:</strong> <code style="font-family:var(--mono);color:var(--teal)">Get-ADDefaultDomainPasswordPolicy | Format-List</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Domain Admins:</strong> <code style="font-family:var(--mono);color:var(--teal)">Get-ADGroupMember "Domain Admins" | Select Name,SamAccountName</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx"><strong>CDE access group:</strong> <code style="font-family:var(--mono);color:var(--teal)">Get-ADGroupMember "GRP_CardholderData" | Select Name,SamAccountName</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Stale accounts:</strong> <code style="font-family:var(--mono);color:var(--teal)">Search-ADAccount -AccountInactive -TimeSpan 90.00:00:00 -UsersOnly</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Service accounts:</strong> <code style="font-family:var(--mono);color:var(--teal)">Get-ADGroupMember "GRP_IT_Admins" | Where {$_.SamAccountName -like "svc.*"}</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Lynis AD scan:</strong> From Kali — <code style="font-family:var(--mono);color:var(--teal)">bash 04_CSFC_GRC_Exercises.sh adaudit</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e2')"><span class="ck-b">✓</span><span class="ck-tx">Document all findings with PowerShell output as screenshots in <code style="font-family:var(--mono);color:var(--teal)">/opt/csfc-grc/evidence/</code></span></li>
+      </ul>
+      <div class="cb"><div class="cb-hd"><span class="cb-lang">PowerShell — Password Policy (Run on CSFC-DC01)</span><button class="cp" onclick="cp(this)">Copy</button></div>
+      <div class="cb-b"><span class="pp">PS></span> <span class="cm">Get-ADDefaultDomainPasswordPolicy | Format-List</span>
+
+<span class="wl">MinPasswordLength      : 6         </span><span class="cc">← FAIL: PCI requires 12+</span>
+<span class="wl">PasswordHistoryCount   : 3         </span><span class="cc">← FAIL: PCI requires 4+</span>
+<span class="wl">MaxPasswordAge         : 180 days  </span><span class="cc">← FAIL: PCI requires 90 days max</span>
+<span class="wl">ComplexityEnabled      : False     </span><span class="cc">← FAIL: PCI requires complexity</span>
+<span class="wl">LockoutThreshold       : 0         </span><span class="cc">← FAIL: PCI requires lockout after 10</span>
+<span class="ou">LockoutDuration        : 00:00:30</span>
+<span class="ou">LockoutObservationWindow: 00:00:30</span></div></div>
+    </div>
+    <div class="tp" id="e2-finds">
+      <div class="gr g2">
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-AD-002</div><div class="fc-ti">Minimum Password Length: 6 Characters</div></div><span class="bd br">CRITICAL</span></div>
+        <div class="fc-bd"><p>PCI-DSS 8.2.4 requires minimum 12 characters from 1 January 2025 (v4.0). Current policy: 6. This is a mandatory requirement for Level 1 merchants.</p>
+        <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">PCI-DSS 8.2.4, CIS 5.2, NIST IA-5(1)</span></div>
+        <div class="fc-r"><span class="fc-k">Evidence:</span><span class="fc-v">Get-ADDefaultDomainPasswordPolicy screenshot</span></div></div>
+        <div class="fc-ft"><span class="bd br">PCI-DSS 8.2.4</span></div></div>
+
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-AD-003</div><div class="fc-ti">No Account Lockout Configured</div></div><span class="bd br">CRITICAL</span></div>
+        <div class="fc-bd"><p>LockoutThreshold = 0 means unlimited authentication attempts. PCI-DSS 8.3.9 requires accounts be locked after 10 failed attempts within 30 minutes. Combined with weak passwords, this means the domain is trivially brute-forceable.</p></div>
+        <div class="fc-ft"><span class="bd br">PCI-DSS 8.3.9</span></div></div>
+
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-AD-005</div><div class="fc-ti">Terminated Employee Account Active</div></div><span class="bd ba">HIGH</span></div>
+        <div class="fc-bd"><p><code style="font-family:var(--mono)">o.employee</code> is a former Finance Analyst who left the company. Account is still enabled and in GRP_CardholderData. PCI-DSS 8.3.7 requires disabling within 6 months; best practice is same-day on termination. HR should have triggered this on offboarding.</p></div>
+        <div class="fc-ft"><span class="bd ba">PCI-DSS 8.3.7</span><span class="bd bp">HR Process Gap</span></div></div>
+
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-AD-006</div><div class="fc-ti">Service Account in Admin Group</div></div><span class="bd br">CRITICAL</span></div>
+        <div class="fc-bd"><p><code style="font-family:var(--mono)">svc.appserver</code> has Domain Admin rights. Service accounts should have minimum necessary permissions (least privilege). If the application server is compromised, an attacker inherits Domain Admin. This is a privilege escalation path.</p></div>
+        <div class="fc-ft"><span class="bd br">PCI-DSS 8.6.1</span><span class="bd bt">CIS 5.4</span></div></div>
+      </div>
+    </div>
+    <div class="tp" id="e2-fix">
+      <div class="cl c-warn"><span class="cl-i">⚠️</span><div><strong>Document Before Fixing</strong>Screenshot every finding BEFORE running the remediation commands. Auditors need evidence of both the problem (as-found state) and the fix (post-remediation state). No screenshot = no audit trail.</div></div>
+      <div class="cb"><div class="cb-hd"><span class="cb-lang">PowerShell — Fix Password Policy (CSFC-DC01)</span><button class="cp" onclick="cp(this)">Copy</button></div>
+      <div class="cb-b"><span class="cc"># Fix password policy — PCI-DSS Req 8.2.4, 8.3.6, 8.3.7, 8.3.9</span>
+<span class="pp">PS></span> <span class="cm">Set-ADDefaultDomainPasswordPolicy -Identity csfc.local `</span>
+<span class="cm">    -MinPasswordLength 12 `</span>
+<span class="cm">    -ComplexityEnabled $true `</span>
+<span class="cm">    -MaxPasswordAge 90.00:00:00 `</span>
+<span class="cm">    -PasswordHistoryCount 5 `</span>
+<span class="cm">    -LockoutThreshold 10 `</span>
+<span class="cm">    -LockoutObservationWindow 00:30:00 `</span>
+<span class="cm">    -LockoutDuration 00:30:00</span>
+
+<span class="cc"># Remove shared account from Domain Admins</span>
+<span class="pp">PS></span> <span class="cm">Remove-ADGroupMember -Identity "Domain Admins" -Members "local.admin","svc.appserver" -Confirm:$false</span>
+
+<span class="cc"># Disable terminated employee and test accounts</span>
+<span class="pp">PS></span> <span class="cm">Disable-ADAccount -Identity "o.employee"</span>
+<span class="pp">PS></span> <span class="cm">Disable-ADAccount -Identity "test.user"</span>
+
+<span class="cc"># Remove contractor from CDE group</span>
+<span class="pp">PS></span> <span class="cm">Remove-ADGroupMember -Identity "GRP_CardholderData" -Members "dev.c2","o.employee" -Confirm:$false</span>
+
+<span class="cc"># Force all users to reset passwords at next login</span>
+<span class="pp">PS></span> <span class="cm">Get-ADUser -Filter * -SearchBase "DC=csfc,DC=local" | Set-ADUser -ChangePasswordAtLogon $true</span>
+
+<span class="cc"># Verify lockout policy applied</span>
+<span class="pp">PS></span> <span class="cm">Get-ADDefaultDomainPasswordPolicy | Select LockoutThreshold,MinPasswordLength,ComplexityEnabled</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: EXERCISE 3 — VULN SCAN
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-e3">
+  <div class="ph-eye">Exercise 3 · PCI-DSS Req 11.3</div>
+  <h1 class="pht">Vulnerability <span class="t">Assessment</span></h1>
+  <p class="ph-d">Run OpenVAS against the CSFC lab environment. Identify unpatched CVEs, misconfigured services, and web vulnerabilities. Document results against PCI-DSS Req 11 — quarterly internal scans are mandatory.</p>
+  <div class="cl c-why"><span class="cl-i">🎯</span><div><strong>GRC Purpose</strong>PCI-DSS Req 11.3.1 requires internal vulnerability scans quarterly by qualified personnel. PCI-DSS 11.3.2 requires external scans by an Approved Scanning Vendor (ASV). This exercise simulates the internal scan workflow — running the scan, triaging results, documenting critical findings, and scheduling patches.</div></div>
+
+  <ul class="ck" id="ck-e3">
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Start OpenVAS:</strong> From Kali browser → <code style="font-family:var(--mono);color:var(--teal)">https://localhost:9392</code> → admin / [set at install]</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">Scans → Targets → New: Name "CSFC Lab", Hosts: 192.168.56.0/24</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">Scans → Tasks → New: Target = CSFC Lab, Config = "Full and Fast", Start</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">While scan runs: <code style="font-family:var(--mono);color:var(--teal)">bash 04_CSFC_GRC_Exercises.sh vulnscan</code> to see expected findings</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">Export scan results as PDF (Scans → Reports → Download PDF)</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">Triage: For each Critical/High finding — identify CVE, CVSS score, affected system, patch timeline</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">Add top 3 findings to POA&amp;M with 14-day (Critical) or 30-day (High) target remediation dates</span></li>
+    <li class="ck-i" onclick="chk(this,'e3')"><span class="ck-b">✓</span><span class="ck-tx">Also run Lynis: <code style="font-family:var(--mono);color:var(--teal)">sudo lynis audit system --remote 192.168.56.40</code> for OS-level hardening gaps</span></li>
+  </ul>
+
+  <h3 class="sh">Expected Scan Results (Simulated)</h3>
+  <div class="tw"><table class="dt">
+    <thead><tr><th>Host</th><th>CVSS</th><th>CVE / ID</th><th>Finding</th><th>POA&amp;M Timeline</th></tr></thead>
+    <tbody>
+      <tr class="fr"><td>192.168.56.40</td><td class="mc" style="color:var(--red)">10.0</td><td class="mc">CUSTOM-001</td><td>SQL Injection in /customers endpoint — full DB dump possible</td><td><span class="bd br">7 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.40</td><td class="mc" style="color:var(--red)">9.8</td><td class="mc">CUSTOM-002</td><td>Unauthenticated API returns CVV and SSN — PCI/GDPR violation</td><td><span class="bd br">7 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.10</td><td class="mc" style="color:var(--red)">9.8</td><td class="mc">CVE-2024-38063</td><td>Windows TCP/IP heap overflow — RCE without authentication</td><td><span class="bd br">14 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.40</td><td class="mc" style="color:var(--amber)">8.6</td><td class="mc">CVE-2023-25577</td><td>Flask/Werkzeug debug console — interactive RCE at /console</td><td><span class="bd ba">14 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.40</td><td class="mc" style="color:var(--amber)">7.5</td><td class="mc">CUSTOM-003</td><td>Anonymous FTP writable — data exfiltration / upload of malware</td><td><span class="bd ba">14 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.40</td><td class="mc" style="color:var(--amber)">7.0</td><td class="mc">CVE-2024-6387</td><td>OpenSSH regreSSHion — signal handler race condition</td><td><span class="bd ba">30 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.10</td><td class="mc" style="color:var(--amber)">6.5</td><td class="mc">CVE-2023-28252</td><td>Windows Common Log File System privilege escalation</td><td><span class="bd ba">30 days</span></td></tr>
+      <tr class="fr"><td>192.168.56.40</td><td class="mc" style="color:var(--purple)">5.0</td><td class="mc">CUSTOM-004</td><td>SSH allows root login — lateral movement risk</td><td><span class="bd bp">60 days</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="cl c-info"><span class="cl-i">💡</span><div><strong>PCI-DSS Scan Requirement</strong>For PCI-DSS compliance, all Critical and High vulnerabilities from an internal scan must be remediated and the system re-scanned to confirm fixes before the scan is considered "passing." You need 4 consecutive clean quarterly scans for initial certification.</div></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: EXERCISE 4 — GDPR
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-e4">
+  <div class="ph-eye">Exercise 4 · GDPR Art 30</div>
+  <h1 class="pht">GDPR Data Discovery <span class="t">&amp; PII Inventory</span></h1>
+  <p class="ph-d">Find all personal data in the CSFC environment. Map each data type to its legal basis and retention period. Create a Records of Processing Activities (ROPA) as required by GDPR Art 30.</p>
+  <div class="cl c-why"><span class="cl-i">🎯</span><div><strong>GRC Purpose</strong>GDPR Art 30 requires every organisation processing EU personal data to maintain a ROPA. Art 83 fines reach €20M or 4% global turnover for violations. With 6 European customers in the database and the GitHub credential leak potentially exposing their data, CSFC faces real GDPR exposure — and a 72-hour breach notification obligation.</div></div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'e4t','e4-disc')">🔍 Data Discovery</button>
+    <button class="tab-btn" onclick="tb(this,'e4t','e4-viol')">🔴 GDPR Violations</button>
+    <button class="tab-btn" onclick="tb(this,'e4t','e4-ropa')">📋 ROPA Template</button>
+  </div>
+  <div id="e4t">
+    <div class="tp on" id="e4-disc">
+      <ul class="ck" id="ck-e4">
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-b">✓</span><span class="ck-tx"><strong>DB PII scan:</strong> <code style="font-family:var(--mono);color:var(--teal)">psql -h 192.168.56.40 -U csfc_readonly -d csfc_production -c "SELECT customer_id,first_name,ssn,dob FROM customers LIMIT 5;"</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-b">✓</span><span class="ck-tx"><strong>List EU customers:</strong> <code style="font-family:var(--mono);color:var(--teal)">SELECT first_name,last_name,country FROM customers WHERE country IN ('FR','DE','IT','SE','IE','ES');</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-tx"><strong>File share DLP scan:</strong> Mount share → <code style="font-family:var(--mono);color:var(--teal)">grep -rI "SSN\|[0-9]{3}-[0-9]{2}-[0-9]{4}" /mnt/csfc_hr/</code></span><span class="ck-b">✓</span></li>
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Check card data:</strong> <code style="font-family:var(--mono);color:var(--teal)">SELECT card_id, card_number, cvv FROM payment_cards;</code> — confirm CVV is visible</span></li>
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Run GDPR exercise:</strong> <code style="font-family:var(--mono);color:var(--teal)">bash 04_CSFC_GRC_Exercises.sh gdpr</code></span></li>
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-b">✓</span><span class="ck-tx">Complete the ROPA template below with all 6 processing activities</span></li>
+        <li class="ck-i" onclick="chk(this,'e4')"><span class="ck-b">✓</span><span class="ck-tx">Determine: Was EU customer data potentially accessed in the GitHub incident? → 72-hour notification clock starts!</span></li>
+      </ul>
+    </div>
+    <div class="tp" id="e4-viol">
+      <div class="gr g2">
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-GDPR-001</div><div class="fc-ti">SSNs in Plain Text (40 customer records)</div></div><span class="bd br">CRITICAL</span></div>
+        <div class="fc-bd"><p>40 customer records contain US Social Security Numbers stored in plain text in PostgreSQL. GDPR Art 5(1)(f) requires "appropriate security including protection against unauthorised processing." Unencrypted SSNs violate this principle and also violate state data breach notification laws in all US states.</p>
+        <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">GDPR Art 5(1)(f), Art 32 | PCI-DSS 3.5</span></div></div>
+        <div class="fc-ft"><span class="bd bp">GDPR Art 5</span><span class="bd br">PCI-DSS 3.5</span></div></div>
+
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-GDPR-002</div><div class="fc-ti">Employee Salary + SSN File Unencrypted</div></div><span class="bd br">CRITICAL</span></div>
+        <div class="fc-bd"><p>HR\Salary_Register_2024.csv contains employee names, SSNs, DOBs, bank accounts, and salaries in a plain CSV on a file share. This is special category data under GDPR Art 9 (financial data, health-adjacent). Requires explicit policy + technical controls.</p>
+        <div class="fc-r"><span class="fc-k">Control:</span><span class="fc-v">GDPR Art 9, Art 32(1)(a)</span></div></div>
+        <div class="fc-ft"><span class="bd br">GDPR Art 9</span></div></div>
+
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-GDPR-003</div><div class="fc-ti">No ROPA Exists (Art 30)</div></div><span class="bd ba">HIGH</span></div>
+        <div class="fc-bd"><p>GDPR Art 30 requires organisations of CSFC's size to maintain a written Record of Processing Activities. No ROPA document was found in the GRC document repository. This is a direct Article 30 violation and would be the first thing a Data Protection Authority auditor asks for.</p></div>
+        <div class="fc-ft"><span class="bd ba">GDPR Art 30</span></div></div>
+
+        <div class="fc"><div class="fc-h"><div><div class="fc-id">FIND-GDPR-004</div><div class="fc-ti">GitHub Incident — 72-Hour Clock</div></div><span class="bd br">CRITICAL</span></div>
+        <div class="fc-bd"><p>The .env.production file contained DB credentials. The suspicious transactions at 02:14 AM suggest the attacker may have accessed the customer database (SSNs, DOBs) and payment_cards table (full PAN + CVV). If confirmed, this triggers GDPR Art 33 — 72-hour notification to supervisory authority. Clock starts from "awareness" — Jane Lee was notified at T+6:15.</p>
+        <div class="fc-r"><span class="fc-k">Deadline:</span><span class="fc-v">Sept 4, 2024 at 20:38 UTC</span></div></div>
+        <div class="fc-ft"><span class="bd br">GDPR Art 33</span></div></div>
+      </div>
+    </div>
+    <div class="tp" id="e4-ropa">
+      <p class="bp">Complete this ROPA table for CSFC. GDPR Art 30 requires all columns to be filled. The first row is done as an example.</p>
+      <div class="tw"><table class="dt">
+        <thead><tr><th>Activity</th><th>Data Types</th><th>Purpose</th><th>Legal Basis</th><th>Retention</th><th>Recipients</th><th>Risk</th></tr></thead>
+        <tbody>
+          <tr><td>Customer Onboarding</td><td>Name, email, DOB, SSN, address</td><td>KYC / AML compliance</td><td>Legal obligation (BSA)</td><td>7 years</td><td>Regulators (FinCEN)</td><td><span class="bd ba">MEDIUM</span></td></tr>
+          <tr style="background:var(--raise)"><td>Payment Processing</td><td colspan="6" style="color:var(--tx);font-size:.78rem;font-style:italic">→ Your task: fill in PAN, expiry, CVV / contract fulfilment / PCI 5yr retention / payment processor recipient</td></tr>
+          <tr style="background:var(--raise)"><td>Fraud Detection</td><td colspan="6" style="color:var(--tx);font-size:.78rem;font-style:italic">→ Your task: transaction data, geolocation / legitimate interest / 3 years / internal only</td></tr>
+          <tr style="background:var(--raise)"><td>Employee HR</td><td colspan="6" style="color:var(--tx);font-size:.78rem;font-style:italic">→ Your task: salary, SSN, DOB, bank account / employment contract / duration + 7 years / HR + payroll</td></tr>
+          <tr style="background:var(--raise)"><td>Marketing</td><td colspan="6" style="color:var(--tx);font-size:.78rem;font-style:italic">→ Your task: email, name / consent (Art 6(1)(a)) / until withdrawn / email platform</td></tr>
+          <tr style="background:var(--raise)"><td>Security Logging</td><td colspan="6" style="color:var(--tx);font-size:.78rem;font-style:italic">→ Your task: IP, username, event / legitimate interest / 12 months (PCI-DSS 10.5) / SIEM only</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: EXERCISE 5 — INCIDENT RESPONSE
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-e5">
+  <div class="ph-eye">Exercise 5 · NIST SP 800-61</div>
+  <h1 class="pht">Incident Response <span class="r">Simulation</span></h1>
+  <p class="ph-d">Work through the GitHub credential leak incident using NIST SP 800-61 Rev 3 phases. Collect evidence from the database audit log, analyse the attack timeline, and determine GDPR notification obligations.</p>
+  <div class="cl c-danger"><span class="cl-i">🚨</span><div><strong>Scenario Recap</strong>Developer s.dev committed .env.production to public GitHub at 14:23 on Sept 1. The file contained DB credentials (csfc_admin/admin123) and AWS access keys. By 18:23 that evening, IP 41.66.224.10 (Lagos, NG) authenticated to the database and inserted 3 rapid transactions. Wazuh fired UNUSUAL_PATTERN alerts at 20:33. Jane Lee (CISO) notified at 20:38. You are the GRC analyst — run the IR process.</div></div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'e5t','e5-tl')">📅 Timeline</button>
+    <button class="tab-btn" onclick="tb(this,'e5t','e5-ev')">🔎 Evidence Collection</button>
+    <button class="tab-btn" onclick="tb(this,'e5t','e5-phases')">📋 NIST 800-61 Phases</button>
+    <button class="tab-btn" onclick="tb(this,'e5t','e5-gdpr')">🇪🇺 GDPR Notification</button>
+  </div>
+  <div id="e5t">
+    <div class="tp on" id="e5-tl">
+      <h3 class="sh">Incident Timeline</h3>
+      <div class="tl">
+        <div class="tl-i"><h4>T+0:00 — Sept 1, 14:23 UTC</h4><p>s.dev runs <code style="font-family:var(--mono)">git push origin main</code> — .env.production goes public on GitHub. Git history shows the commit.</p></div>
+        <div class="tl-i"><h4>T+0:05 — Sept 1, 14:28 UTC</h4><p>GitHub Actions CI/CD pipeline triggers. First external bot scans the repository within 5 minutes of the push (this is normal — automated credential scanners operate continuously).</p></div>
+        <div class="tl-i"><h4>T+2:30 — Sept 1, 16:53 UTC</h4><p>External IP 41.66.224.10 first appears in CSFC network logs — probing the PostgreSQL port 5432 (exposed to network per FIND-NET-002).</p></div>
+        <div class="tl-i"><h4>T+3:60 — Sept 1, 18:23 UTC</h4><p>First successful DB authentication using csfc_admin/admin123. audit_log table shows SELECT on payment_cards — attacker likely exfiltrating card data.</p></div>
+        <div class="tl-i"><h4>T+4:01 — Sept 1, 18:24–18:26 UTC</h4><p>3 fraudulent transactions inserted at 02:14, 02:15, 02:16 AM (local time — the audit_log entries you can query from the database).</p></div>
+        <div class="tl-i"><h4>T+6:10 — Sept 1, 20:33 UTC</h4><p>Wazuh UNUSUAL_PATTERN rule fires. Alert sent to SOC email distribution list.</p></div>
+        <div class="tl-i"><h4>T+6:15 — Sept 1, 20:38 UTC — GDPR CLOCK STARTS</h4><p>Jane Lee (CISO) reads the Wazuh alert. This is "awareness" under GDPR Art 33. The 72-hour notification window begins now. Deadline: Sept 4, 20:38 UTC.</p></div>
+        <div class="tl-i"><h4>T+7:00 — Sept 1, 21:38 UTC</h4><p>GitHub repo made private. All credentials in .env.production rotated (DB password, AWS keys, payment API key, JWT secret).</p></div>
+      </div>
+    </div>
+    <div class="tp" id="e5-ev">
+      <h3 class="sh">Evidence Collection Commands</h3>
+      <div class="cb"><div class="cb-hd"><span class="cb-lang">PostgreSQL — Collect Evidence (run from Kali)</span><button class="cp" onclick="cp(this)">Copy</button></div>
+      <div class="cb-b"><span class="cc"># Connect to database</span>
+<span class="pp">$</span> <span class="cm">psql -h 192.168.56.40 -U csfc_readonly -d csfc_production</span>
+
+<span class="cc">-- Q1: What did 41.66.224.10 do?</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> audit_log
+<span class="kw">WHERE</span> ip_address = <span class="st">'41.66.224.10'</span>
+<span class="kw">ORDER BY</span> event_time;
+
+<span class="cc">-- Q2: What data was selected from payment_cards?</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> audit_log
+<span class="kw">WHERE</span> table_name = <span class="st">'payment_cards'</span>
+<span class="kw">AND</span> event_time <span class="kw">BETWEEN</span> <span class="st">'2024-09-01 18:00:00'</span> <span class="kw">AND</span> <span class="st">'2024-09-01 19:00:00'</span>;
+
+<span class="cc">-- Q3: What fraudulent transactions were inserted?</span>
+<span class="kw">SELECT</span> t.txn_id, c.first_name || <span class="st">' '</span> || c.last_name <span class="kw">AS</span> customer,
+       t.amount, t.txn_date, t.aml_flag, t.country
+<span class="kw">FROM</span> transactions t
+<span class="kw">JOIN</span> customers c <span class="kw">ON</span> t.customer_id = c.customer_id
+<span class="kw">WHERE</span> t.suspicious = <span class="kw">true</span>
+<span class="kw">AND</span> t.txn_date <span class="kw">BETWEEN</span> <span class="st">'2024-09-01 18:00:00'</span> <span class="kw">AND</span> <span class="st">'2024-09-01 19:00:00'</span>
+<span class="kw">ORDER BY</span> t.txn_date;
+
+<span class="cc">-- Q4: How many EU customers had their data potentially exposed?</span>
+<span class="kw">SELECT</span> first_name, last_name, country, email
+<span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> country <span class="kw">IN</span> (<span class="st">'FR'</span>,<span class="st">'DE'</span>,<span class="st">'IT'</span>,<span class="st">'SE'</span>,<span class="st">'IE'</span>,<span class="st">'ES'</span>);</div></div>
+
+      <ul class="ck" id="ck-e5">
+        <li class="ck-i" onclick="chk(this,'e5')"><span class="ck-b">✓</span><span class="ck-tx">Run all 4 SQL queries above, screenshot results</span></li>
+        <li class="ck-i" onclick="chk(this,'e5')"><span class="ck-b">✓</span><span class="ck-tx">Check Wazuh dashboard: Security Events → filter by "UNUSUAL_PATTERN" — find the Sept 1 alerts</span></li>
+        <li class="ck-i" onclick="chk(this,'e5')"><span class="ck-b">✓</span><span class="ck-tx">Determine: was payment_cards data (PAN + CVV) accessed? → This determines PCI-DSS notification requirement</span></li>
+        <li class="ck-i" onclick="chk(this,'e5')"><span class="ck-b">✓</span><span class="ck-tx">Count EU customer records potentially exposed → This determines GDPR Art 33 notification scope</span></li>
+        <li class="ck-i" onclick="chk(this,'e5')"><span class="ck-b">✓</span><span class="ck-tx">Run: <code style="font-family:var(--mono);color:var(--teal)">bash 04_CSFC_GRC_Exercises.sh ir</code> for full guided walkthrough</span></li>
+      </ul>
+    </div>
+    <div class="tp" id="e5-phases">
+      <div class="acc">
+        <div class="ac-i open"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">1</div><div class="ac-ti">PREPARATION — Was CSFC prepared?</div></div><span class="ac-ar">▶</span></div><div class="ac-b"><div class="ac-bi">
+          <p><strong>Gaps identified (document these):</strong></p>
+          <p>❌ No pre-commit hook to prevent credential commits to git</p>
+          <p>❌ No automated secret scanning (GitHub Advanced Security / GitLeaks not configured)</p>
+          <p>❌ No .gitignore rule covering .env files in the Engineering repo</p>
+          <p>❌ Developer security training incomplete — s.dev was unaware of the risk</p>
+          <p>❌ No incident response playbook existed for credential leak scenario</p>
+        </div></div></div>
+        <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">2</div><div class="ac-ti">DETECTION &amp; ANALYSIS — What happened?</div></div><span class="ac-ar">▶</span></div><div class="ac-b"><div class="ac-bi">
+          <p>✅ Wazuh detected unusual transaction pattern (T+6:10)</p>
+          <p>✅ Database audit_log retained evidence of the access</p>
+          <p>⚠️ Detection took 6+ hours — should have been minutes with GitHub secret scanning</p>
+          <p>❌ No UEBA (User Entity Behaviour Analytics) to flag the Nigerian IP accessing DB for first time</p>
+          <p><strong>Scope:</strong> Attacker authenticated as csfc_admin. Had full access to all 40 customers, 10 card records including CVVs, and could read/write/delete all data. 3 fraudulent transactions confirmed inserted.</p>
+        </div></div></div>
+        <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">3</div><div class="ac-ti">CONTAINMENT — Stop the bleeding</div></div><span class="ac-ar">▶</span></div><div class="ac-b"><div class="ac-bi">
+          <p>✅ GitHub repo made private (T+7:00)</p>
+          <p>✅ DB password rotated (admin123 → new strong password)</p>
+          <p>✅ AWS access keys revoked in IAM console</p>
+          <p>✅ Payment API key regenerated with provider</p>
+          <p>✅ JWT secret rotated (forces all sessions to expire)</p>
+          <p>❌ Firewall rule to block 41.66.224.10 not added until T+8:00 — too slow</p>
+        </div></div></div>
+        <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">4</div><div class="ac-ti">ERADICATION — Remove root cause</div></div><span class="ac-ar">▶</span></div><div class="ac-b"><div class="ac-bi">
+          <p>Remove .env from git history: <code style="font-family:var(--mono);color:var(--teal)">git filter-repo --path .env.production --invert-paths</code></p>
+          <p>Scan all repos: <code style="font-family:var(--mono);color:var(--teal)">gitleaks detect --source . -v</code></p>
+          <p>Add .gitignore rule: <code style="font-family:var(--mono);color:var(--teal)">echo "*.env*" >> .gitignore</code></p>
+          <p>Install pre-commit hook: <code style="font-family:var(--mono);color:var(--teal)">pre-commit install && pre-commit autoupdate</code></p>
+          <p>Configure GitHub secret scanning (Settings → Code security → Secret scanning)</p>
+        </div></div></div>
+        <div class="ac-i"><div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">5</div><div class="ac-ti">POST-INCIDENT — Lessons learned</div></div><span class="ac-ar">▶</span></div><div class="ac-b"><div class="ac-bi">
+          <p><strong>Root Cause:</strong> Lack of developer security training + no technical controls preventing credential commits</p>
+          <p><strong>Contributing Factors:</strong> PostgreSQL exposed to network (should be localhost only), no secret scanning, weak DB password (admin123) — any scan would have tried it</p>
+          <p><strong>New Controls Required:</strong> Mandatory git pre-commit hooks, GitHub secret scanning, developer security training (OWASP), quarterly phishing + security awareness, bind PostgreSQL to localhost</p>
+          <p><strong>Board Report:</strong> Due within 5 business days. Include: incident scope, data affected, containment actions, root cause, new controls, financial impact estimate.</p>
+        </div></div></div>
+      </div>
+    </div>
+    <div class="tp" id="e5-gdpr">
+      <div class="cl c-danger"><span class="cl-i">⏰</span><div><strong>GDPR Art 33 — 72-Hour Notification Clock</strong>Awareness confirmed at T+6:15 (Sept 1, 20:38 UTC). The supervisory authority (ICO in UK, CNIL in France, BfDI in Germany) must be notified within 72 hours. Deadline: <strong style="color:var(--red)">September 4, 2024 at 20:38 UTC</strong>.</div></div>
+      <div class="gr g2">
+        <div class="cd"><h4 style="font-size:.85rem;font-weight:700;color:var(--txb);margin-bottom:.65rem">Art 33 Notification Criteria</h4>
+          <p style="font-size:.81rem;color:var(--tx);line-height:1.65">Must notify if breach is "likely to result in a risk to the rights and freedoms of natural persons." Given: 6 EU customer records with SSN/DOB/PAN potentially accessed → <strong style="color:var(--red)">notification required</strong>.</p>
+        </div>
+        <div class="cd"><h4 style="font-size:.85rem;font-weight:700;color:var(--txb);margin-bottom:.65rem">What to Include (Art 33(3))</h4>
+          <div style="display:flex;flex-direction:column;gap:.3rem;font-size:.8rem">
+            <div style="display:flex;gap:.5rem"><span style="color:var(--green)">✓</span><span>Nature of breach + categories of data affected</span></div>
+            <div style="display:flex;gap:.5rem"><span style="color:var(--green)">✓</span><span>Approx. number of people + records affected</span></div>
+            <div style="display:flex;gap:.5rem"><span style="color:var(--green)">✓</span><span>DPO contact details (or CISO if no DPO)</span></div>
+            <div style="display:flex;gap:.5rem"><span style="color:var(--green)">✓</span><span>Likely consequences of the breach</span></div>
+            <div style="display:flex;gap:.5rem"><span style="color:var(--green)">✓</span><span>Measures taken/proposed to address breach</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cl c-warn"><span class="cl-i">📝</span><div><strong>Your Task</strong>Draft a GDPR Art 33 notification for CSFC. Address it to the ICO (UK) at report.cyber.icn.org.uk. Use the structure above. Assume 6 EU customers were affected. Include the remediation actions already taken. This is a real-world skill — GRC analysts write these under extreme time pressure.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: EXERCISE 6 — SQL INJECTION
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-e6">
+  <div class="ph-eye">Exercise 6 · PCI-DSS Req 6.4</div>
+  <h1 class="pht">Web App <span class="t">Vulnerabilities</span> &amp; SQLi</h1>
+  <p class="ph-d">Document web application vulnerabilities in the CSFC portal. Run the SQL injection tests, collect evidence, and write professional GRC findings mapped to PCI-DSS Req 6.4 and OWASP Top 10.</p>
+  <div class="cl c-warn"><span class="cl-i">⚠️</span><div><strong>Authorised Testing Only</strong>Only test against your own lab systems (192.168.56.40). These techniques on systems without explicit authorisation is illegal in most jurisdictions. In real GRC work, penetration testing requires a signed Rules of Engagement document before starting.</div></div>
+
+  <ul class="ck" id="ck-e6">
+    <li class="ck-i" onclick="chk(this,'e6')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Test SQLi:</strong> <code style="font-family:var(--mono);color:var(--teal)">curl "http://192.168.56.40:5000/customers?search=%27+OR+%271%27%3D%271"</code> — should return all 40 customers</span></li>
+    <li class="ck-i" onclick="chk(this,'e6')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Test unauth API (SSN):</strong> <code style="font-family:var(--mono);color:var(--teal)">curl http://192.168.56.40:5000/api/customers | python3 -m json.tool | grep ssn</code></span></li>
+    <li class="ck-i" onclick="chk(this,'e6')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Test card API:</strong> <code style="font-family:var(--mono);color:var(--teal)">curl http://192.168.56.40:5000/api/cards | python3 -m json.tool</code> — confirm CVV visible</span></li>
+    <li class="ck-i" onclick="chk(this,'e6')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Test IDOR:</strong> After login, try <code style="font-family:var(--mono);color:var(--teal)">http://192.168.56.40:5000/customer/1</code> through <code style="font-family:var(--mono);color:var(--teal)">/customer/40</code> — all accessible</span></li>
+    <li class="ck-i" onclick="chk(this,'e6')"><span class="ck-b">✓</span><span class="ck-tx"><strong>Wazuh check:</strong> Open Wazuh dashboard → verify Rule 100070 fired for the SQLi attempt</span></li>
+    <li class="ck-i" onclick="chk(this,'e6')"><span class="ck-b">✓</span><span class="ck-tx">Screenshot all 4 tests as evidence. Write up each finding using the template below.</span></li>
+  </ul>
+
+  <h3 class="sh">Web App Finding Template</h3>
+  <div class="gr g2">
+    <div class="fc">
+      <div class="fc-h"><div><div class="fc-id">FIND-WEB-001</div><div class="fc-ti">SQL Injection in Customer Search</div></div><span class="bd br">CRITICAL</span></div>
+      <div class="fc-bd">
+        <div class="fc-r"><span class="fc-k">URL:</span><span class="fc-v" style="font-family:var(--mono);font-size:.72rem">/customers?search=</span></div>
+        <div class="fc-r"><span class="fc-k">Parameter:</span><span class="fc-v">search</span></div>
+        <div class="fc-r"><span class="fc-k">CVSS:</span><span class="fc-v">9.8 (AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H)</span></div>
+        <div class="fc-r"><span class="fc-k">CWE:</span><span class="fc-v">CWE-89 — SQL Injection</span></div>
+        <div class="fc-r"><span class="fc-k">OWASP:</span><span class="fc-v">A03:2021 — Injection</span></div>
+        <div class="fc-r"><span class="fc-k">Impact:</span><span class="fc-v">Full customer database dump, PAN extraction, SSN exposure. €20M GDPR fine risk + PCI-DSS merchant classification downgrade.</span></div>
+        <div class="fc-r"><span class="fc-k">Fix:</span><span class="fc-v">Parameterized queries in all DB calls. Input validation. WAF rule.</span></div>
+      </div>
+      <div class="fc-ft"><span class="bd br">PCI-DSS 6.4.1</span><span class="bd bp">OWASP A03</span><span class="bd bt">NIST SA-11</span></div>
+    </div>
+    <div class="fc">
+      <div class="fc-h"><div><div class="fc-id">FIND-WEB-002</div><div class="fc-ti">Unauthenticated API Returns PAN + CVV</div></div><span class="bd br">CRITICAL</span></div>
+      <div class="fc-bd">
+        <div class="fc-r"><span class="fc-k">URLs:</span><span class="fc-v" style="font-family:var(--mono);font-size:.72rem">/api/customers, /api/cards</span></div>
+        <div class="fc-r"><span class="fc-k">CVSS:</span><span class="fc-v">9.8 (no auth, network accessible)</span></div>
+        <div class="fc-r"><span class="fc-k">PCI-DSS:</span><span class="fc-v">Req 3.3.1 (CVV storage) + Req 6.4 (app security)</span></div>
+        <div class="fc-r"><span class="fc-k">Impact:</span><span class="fc-v">All 10 card records including full PAN and CVV accessible from Kali with a single curl command. No credential required. Card fraud ready-to-use.</span></div>
+        <div class="fc-r"><span class="fc-k">Fix:</span><span class="fc-v">Add API authentication (JWT/OAuth). Remove CVV from DB entirely.</span></div>
+      </div>
+      <div class="fc-ft"><span class="bd br">PCI-DSS 3.3.1</span><span class="bd br">PCI-DSS 6.4</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: RISK REGISTER + HEATMAP
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-rr">
+  <div class="ph-eye">Reference Document</div>
+  <h1 class="pht">Risk Register <span class="t">+ Heatmap</span></h1>
+  <p class="ph-d">CSFC's pre-populated risk register with 10 risks scored by likelihood × impact. The heatmap shows the current risk profile — dominated by Critical and High findings.</p>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tb(this,'rrt','rr-reg')">📊 Risk Register</button>
+    <button class="tab-btn" onclick="tb(this,'rrt','rr-hm')">🗺️ Heatmap</button>
+  </div>
+  <div id="rrt">
+    <div class="tp on" id="rr-reg">
+      <div class="tw"><table class="dt">
+        <thead><tr><th>ID</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Score</th><th>Rating</th><th>Owner</th><th>Treatment</th></tr></thead>
+        <tbody>
+          <tr class="fr"><td class="mc">R-01</td><td>VPN has no MFA — credential stuffing</td><td>4</td><td>5</td><td class="mc" style="color:var(--red)">20</td><td><span class="bd br">CRITICAL</span></td><td>Alice Nguyen</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-02</td><td>Weak AD password policy (6 chars)</td><td>4</td><td>4</td><td class="mc" style="color:var(--red)">16</td><td><span class="bd br">HIGH</span></td><td>Alice Nguyen</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-03</td><td>Unpatched systems (CVE-2024-38063)</td><td>3</td><td>5</td><td class="mc" style="color:var(--red)">15</td><td><span class="bd br">HIGH</span></td><td>Tom Brecker</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-04</td><td>GitHub credential leak (active incident)</td><td>3</td><td>5</td><td class="mc" style="color:var(--red)">15</td><td><span class="bd br">HIGH</span></td><td>Jane Lee</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-05</td><td>Shadow IT — unsanctioned cloud services</td><td>4</td><td>4</td><td class="mc" style="color:var(--red)">16</td><td><span class="bd br">HIGH</span></td><td>Diane Holloway</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-06</td><td>No DLP — data exfiltration possible</td><td>2</td><td>5</td><td class="mc" style="color:var(--amber)">10</td><td><span class="bd ba">MEDIUM</span></td><td>Jane Lee</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-07</td><td>Incomplete asset inventory</td><td>3</td><td>3</td><td class="mc" style="color:var(--amber)">9</td><td><span class="bd ba">MEDIUM</span></td><td>Alice Nguyen</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-08</td><td>GDPR breach notification failure risk</td><td>2</td><td>4</td><td class="mc" style="color:var(--amber)">8</td><td><span class="bd ba">MEDIUM</span></td><td>Jane Lee</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-09</td><td>PCI-DSS non-compliance (CVV stored)</td><td>3</td><td>5</td><td class="mc" style="color:var(--red)">15</td><td><span class="bd br">HIGH</span></td><td>Tom Brecker</td><td>Mitigate</td></tr>
+          <tr class="fr"><td class="mc">R-10</td><td>Third-party vendor breach (supply chain)</td><td>2</td><td>4</td><td class="mc" style="color:var(--amber)">8</td><td><span class="bd ba">MEDIUM</span></td><td>Diane Holloway</td><td>Transfer</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cl c-danger"><span class="cl-i">📊</span><div><strong>Risk Profile Summary</strong>1 Critical · 5 High · 4 Medium · 0 Low. A risk score of 6+ High/Critical findings triggers mandatory board-level reporting. CSFC needs a Risk Committee meeting within 5 business days.</div></div>
+    </div>
+    <div class="tp" id="rr-hm">
+      <div class="hm-wrap">
+        <div style="font-family:var(--mono);font-size:.58rem;color:var(--tx);margin-bottom:.75rem;opacity:.6">CSFC RISK HEATMAP — Likelihood (Y) × Impact (X) · Score = L×I</div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.5rem;font-family:var(--mono);font-size:.6rem;color:var(--tx)">
+          <div style="display:flex;align-items:center;gap:.3rem"><div style="width:12px;height:12px;border-radius:2px;background:#7c3aed"></div>Critical (17-25)</div>
+          <div style="display:flex;align-items:center;gap:.3rem"><div style="width:12px;height:12px;border-radius:2px;background:#dc2626"></div>High (10-16)</div>
+          <div style="display:flex;align-items:center;gap:.3rem"><div style="width:12px;height:12px;border-radius:2px;background:#d97706"></div>Medium (5-9)</div>
+          <div style="display:flex;align-items:center;gap:.3rem"><div style="width:12px;height:12px;border-radius:2px;background:#16a34a"></div>Low (1-4)</div>
+        </div>
+        <div style="display:grid;grid-template-columns:24px repeat(5,1fr);gap:3px">
+          <div></div>
+          <div class="hm-header">I:1</div><div class="hm-header">I:2</div><div class="hm-header">I:3</div><div class="hm-header">I:4</div><div class="hm-header">I:5</div>
+          <!-- Row L5 -->
+          <div class="hm-lbl">L5</div>
+          <div class="hm-cell" style="background:rgba(220,38,38,.25);height:54px;color:var(--red)" title="5×1=5 Medium">5</div>
+          <div class="hm-cell" style="background:rgba(220,38,38,.35);height:54px;color:var(--red)" title="5×2=10 High">10</div>
+          <div class="hm-cell" style="background:rgba(220,38,38,.5);height:54px;color:#fca5a5" title="5×3=15 High">15</div>
+          <div class="hm-cell" style="background:rgba(124,58,237,.5);height:54px;color:#c4b5fd" title="5×4=20 Critical">20<div class="hm-rid">R-01</div></div>
+          <div class="hm-cell" style="background:rgba(124,58,237,.7);height:54px;color:#e9d5ff" title="5×5=25 Critical">25</div>
+          <!-- Row L4 -->
+          <div class="hm-lbl">L4</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.2);height:54px;color:var(--amber)" title="4×1=4 Low">4</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.3);height:54px;color:var(--amber)" title="4×2=8 Medium">8</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.45);height:54px;color:var(--amber)" title="4×3=12 High">12</div>
+          <div class="hm-cell" style="background:rgba(220,38,38,.55);height:54px;color:#fca5a5" title="4×4=16 High">16<div class="hm-rid">R-02,R-05</div></div>
+          <div class="hm-cell" style="background:rgba(220,38,38,.65);height:54px;color:#fca5a5" title="4×5=20 Critical">20</div>
+          <!-- Row L3 -->
+          <div class="hm-lbl">L3</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.2);height:54px;color:var(--green)" title="3×1=3 Low">3</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.2);height:54px;color:var(--amber)" title="3×2=6 Medium">6</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.3);height:54px;color:var(--amber)" title="3×3=9 Medium">9<div class="hm-rid">R-07</div></div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.45);height:54px;color:var(--amber)" title="3×4=12 High">12</div>
+          <div class="hm-cell" style="background:rgba(220,38,38,.5);height:54px;color:#fca5a5" title="3×5=15 High">15<div class="hm-rid">R-03,R-04,R-09</div></div>
+          <!-- Row L2 -->
+          <div class="hm-lbl">L2</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.2);height:54px;color:var(--green)" title="2×1=2 Low">2</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.25);height:54px;color:var(--green)" title="2×2=4 Low">4</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.2);height:54px;color:var(--amber)" title="2×3=6 Medium">6</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.3);height:54px;color:var(--amber)" title="2×4=8 Medium">8<div class="hm-rid">R-08,R-10</div></div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.45);height:54px;color:var(--amber)" title="2×5=10 High">10<div class="hm-rid">R-06</div></div>
+          <!-- Row L1 -->
+          <div class="hm-lbl">L1</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.15);height:54px;color:var(--green)" title="1×1=1 Low">1</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.2);height:54px;color:var(--green)" title="1×2=2 Low">2</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.25);height:54px;color:var(--green)" title="1×3=3 Low">3</div>
+          <div class="hm-cell" style="background:rgba(22,163,74,.25);height:54px;color:var(--green)" title="1×4=4 Low">4</div>
+          <div class="hm-cell" style="background:rgba(217,119,6,.2);height:54px;color:var(--amber)" title="1×5=5 Medium">5</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:.58rem;color:var(--tx);opacity:.5;margin-top:.5rem;text-align:center">← Impact (1=Negligible → 5=Catastrophic)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: POA&M TRACKER
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-poam">
+  <div class="ph-eye">Reference Document</div>
+  <h1 class="pht">POA&amp;M <span class="t">Tracker</span></h1>
+  <p class="ph-d">15 pre-loaded Plan of Action &amp; Milestones items. Work through each one — fix the finding in the lab, update the status, and add your evidence note. This is your deliverable at the end of the lab.</p>
+
+  <div class="tw"><table class="dt">
+    <thead><tr><th>#</th><th>Finding</th><th>Sev</th><th>Control</th><th>Due</th><th>Owner</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr class="fr"><td class="mc">POA-001</td><td>CVV stored in payment_cards table</td><td><span class="bd br">CRIT</span></td><td>PCI-DSS 3.3.1</td><td>Nov 1</td><td>Tom Brecker</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-002</td><td>No MFA on VPN gateway</td><td><span class="bd br">CRIT</span></td><td>PCI-DSS 8.3.1</td><td>Nov 15</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-003</td><td>SQL Injection in /customers endpoint</td><td><span class="bd br">CRIT</span></td><td>PCI-DSS 6.4.1</td><td>Nov 1</td><td>Liam O'Brien</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-004</td><td>Unauthenticated /api/customers and /api/cards</td><td><span class="bd br">CRIT</span></td><td>PCI-DSS 6.4</td><td>Nov 1</td><td>Liam O'Brien</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-005</td><td>Contractor dev.c2 in CDE access group</td><td><span class="bd br">CRIT</span></td><td>PCI-DSS 7.2.1</td><td>Oct 15</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-006</td><td>local.admin in Domain Admins (shared account)</td><td><span class="bd br">CRIT</span></td><td>PCI-DSS 8.2.1</td><td>Oct 15</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-007</td><td>Weak password policy — min 6 chars, no lockout</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 8.2.4</td><td>Nov 1</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-008</td><td>Terminated employee o.employee still active</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 8.3.7</td><td>Oct 15</td><td>Rachel Thompson</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-009</td><td>Full PAN stored unmasked in database</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 3.4.1</td><td>Dec 1</td><td>Tom Brecker</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-010</td><td>svc.appserver service account has Domain Admin rights</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 8.6.1</td><td>Nov 15</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-011</td><td>Anonymous FTP enabled and writable</td><td><span class="bd ba">HIGH</span></td><td>PCI-DSS 2.2.1</td><td>Nov 1</td><td>Tom Brecker</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-012</td><td>SSNs stored in plain text in customers table</td><td><span class="bd ba">HIGH</span></td><td>GDPR Art 5</td><td>Dec 1</td><td>Tom Brecker</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-013</td><td>Security event log 1MB (should be 1GB+)</td><td><span class="bd bp">MED</span></td><td>PCI-DSS 10.3.2</td><td>Dec 1</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-014</td><td>Max password age 180 days (PCI requires 90)</td><td><span class="bd bp">MED</span></td><td>PCI-DSS 8.3.6</td><td>Nov 1</td><td>Alice Nguyen</td><td><span class="poam-open">OPEN</span></td></tr>
+      <tr class="fr"><td class="mc">POA-015</td><td>GDPR ROPA document does not exist</td><td><span class="bd bp">MED</span></td><td>GDPR Art 30</td><td>Nov 15</td><td>Jane Lee</td><td><span class="poam-open">OPEN</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="cl c-info"><span class="cl-i">💡</span><div><strong>How to Use This POA&amp;M</strong>Work through each item in order of severity. When you complete a fix in the lab: (1) take a screenshot showing the remediation, (2) note the command/action used, (3) update the status to CLOSED. Your final deliverable is a fully closed POA&amp;M with evidence — that's what you'd present to a CISO or QSA auditor.</div></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: TROUBLESHOOTING
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-fixes">
+  <div class="ph-eye">Troubleshooting</div>
+  <h1 class="pht">When Things <span class="a">Break</span></h1>
+  <p class="ph-d">Common issues when running the lab scripts. Find your error, run the fix, and get back on track.</p>
+
+  <div class="acc">
+    <div class="ac-i open">
+      <div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">1</div><div class="ac-ti">PostgreSQL fails to install or won't start</div></div><div style="display:flex;gap:.35rem;align-items:center"><span class="bd ba">Script 2</span><span class="ac-ar">▶</span></div></div>
+      <div class="ac-b"><div class="ac-bi">
+        <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH</span><button class="cp" onclick="cp(this)">Copy</button></div>
+        <div class="cb-b"><span class="pp">$</span> <span class="cm">sudo systemctl status postgresql</span>           <span class="cc"># Check status</span>
+<span class="pp">$</span> <span class="cm">sudo journalctl -u postgresql -n 50</span>          <span class="cc"># Check last 50 log lines</span>
+<span class="pp">$</span> <span class="cm">sudo pg_dropcluster --stop 14 main</span>
+<span class="pp">$</span> <span class="cm">sudo pg_createcluster --start 14 main</span>
+<span class="pp">$</span> <span class="cm">sudo systemctl start postgresql</span></div></div>
+      </div></div>
+    </div>
+    <div class="ac-i">
+      <div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">2</div><div class="ac-ti">Flask web app won't start (csfc-app.service fails)</div></div><div style="display:flex;gap:.35rem;align-items:center"><span class="bd ba">Script 2</span><span class="ac-ar">▶</span></div></div>
+      <div class="ac-b"><div class="ac-bi">
+        <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH</span><button class="cp" onclick="cp(this)">Copy</button></div>
+        <div class="cb-b"><span class="pp">$</span> <span class="cm">sudo journalctl -u csfc-app -n 30</span>           <span class="cc"># Check error</span>
+<span class="pp">$</span> <span class="cm">pip3 install flask psycopg2-binary --break-system-packages</span>
+<span class="pp">$</span> <span class="cm">sudo python3 /opt/csfc-app/app.py</span>            <span class="cc"># Test manually</span>
+<span class="pp">$</span> <span class="cm">sudo systemctl restart csfc-app</span></div></div>
+      </div></div>
+    </div>
+    <div class="ac-i">
+      <div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">3</div><div class="ac-ti">Wazuh manager won't restart after Script 3</div></div><div style="display:flex;gap:.35rem;align-items:center"><span class="bd ba">Script 3</span><span class="ac-ar">▶</span></div></div>
+      <div class="ac-b"><div class="ac-bi">
+        <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH</span><button class="cp" onclick="cp(this)">Copy</button></div>
+        <div class="cb-b"><span class="pp">$</span> <span class="cm">sudo /var/ossec/bin/wazuh-logtest</span>            <span class="cc"># Test rule syntax</span>
+<span class="pp">$</span> <span class="cm">sudo xmllint --noout /var/ossec/etc/rules/csfc_custom_rules.xml</span>
+<span class="pp">$</span> <span class="cm">sudo systemctl restart wazuh-manager</span>
+<span class="pp">$</span> <span class="cm">sudo grep -i error /var/ossec/logs/ossec.log | tail -20</span></div></div>
+      </div></div>
+    </div>
+    <div class="ac-i">
+      <div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">4</div><div class="ac-ti">OpenRMF Docker containers keep restarting</div></div><div style="display:flex;gap:.35rem;align-items:center"><span class="bd ba">Script 4</span><span class="ac-ar">▶</span></div></div>
+      <div class="ac-b"><div class="ac-bi">
+        <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH</span><button class="cp" onclick="cp(this)">Copy</button></div>
+        <div class="cb-b"><span class="pp">$</span> <span class="cm">docker compose logs --tail=50</span>                <span class="cc"># Find failing container</span>
+<span class="pp">$</span> <span class="cm">docker compose down -v</span>                        <span class="cc"># Remove volumes</span>
+<span class="pp">$</span> <span class="cm">docker compose up -d</span>                          <span class="cc"># Fresh start</span>
+<span class="cc"># MongoDB volume permissions fix:</span>
+<span class="pp">$</span> <span class="cm">sudo chmod -R 777 /var/lib/docker/volumes/openrmf*</span></div></div>
+      </div></div>
+    </div>
+    <div class="ac-i">
+      <div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">5</div><div class="ac-ti">AD script fails: "New-ADUser : The object class is not valid"</div></div><div style="display:flex;gap:.35rem;align-items:center"><span class="bd ba">Script 1</span><span class="ac-ar">▶</span></div></div>
+      <div class="ac-b"><div class="ac-bi">
+        <p>The AD DS role isn't fully installed or the server hasn't fully replicated after promotion. Wait 5 minutes after DC promotion before running the script.</p>
+        <div class="cb"><div class="cb-hd"><span class="cb-lang">PowerShell</span><button class="cp" onclick="cp(this)">Copy</button></div>
+        <div class="cb-b"><span class="pp">PS></span> <span class="cm">Get-Service ADWS | Select Status</span>              <span class="cc"># Should be Running</span>
+<span class="pp">PS></span> <span class="cm">Get-ADDomain</span>                                   <span class="cc"># Should return csfc.local details</span>
+<span class="pp">PS></span> <span class="cm">Import-Module ActiveDirectory</span>                  <span class="cc"># Reload module</span>
+<span class="pp">PS></span> <span class="cm">.\01_CSFC_AD_Setup.ps1</span>                         <span class="cc"># Re-run</span></div></div>
+      </div></div>
+    </div>
+    <div class="ac-i">
+      <div class="ac-t" onclick="ac(this)"><div class="ac-tl"><div class="ac-n">6</div><div class="ac-ti">Can't reach webapp from Kali (connection refused)</div></div><div style="display:flex;gap:.35rem;align-items:center"><span class="bd bt">Network</span><span class="ac-ar">▶</span></div></div>
+      <div class="ac-b"><div class="ac-bi">
+        <div class="cb"><div class="cb-hd"><span class="cb-lang">BASH</span><button class="cp" onclick="cp(this)">Copy</button></div>
+        <div class="cb-b"><span class="pp">$</span> <span class="cm">ping 192.168.56.40</span>                            <span class="cc"># Test basic connectivity</span>
+<span class="pp">$</span> <span class="cm">nmap -p 5000 192.168.56.40</span>                    <span class="cc"># Check if port is open</span>
+<span class="cc"># On the webapp VM:</span>
+<span class="pp">$</span> <span class="cm">sudo systemctl restart csfc-app</span>
+<span class="pp">$</span> <span class="cm">ss -tlnp | grep 5000</span>                          <span class="cc"># Confirm port is listening</span>
+<span class="cc"># Check host-only adapter on both VMs is on same network (56.x)</span></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #main -->
+
+<script>
+// ─── NAVIGATION ───────────────────────────────
+const pages = document.querySelectorAll('.pg');
+const navItems = document.querySelectorAll('.ni');
+const titleLabels = {};
+navItems.forEach(n => {
+  titleLabels[n.dataset.p] = n.querySelector('.ni-l').textContent.trim();
+});
+
+function gp(el) {
+  const pid = el.dataset.p;
+  pages.forEach(p => p.classList.remove('on'));
+  navItems.forEach(n => n.classList.remove('on'));
+  const pg = document.getElementById('pg-' + pid);
+  if (pg) pg.classList.add('on');
+  el.classList.add('on');
+  document.getElementById('tb-cur').textContent = titleLabels[pid] || pid;
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
+  const sb = document.getElementById('sb');
+  if (sb.classList.contains('open')) sb.classList.remove('open');
+}
+
+// ─── TABS ─────────────────────────────────────
+function tb(btn, groupId, panelId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.tp').forEach(p => p.classList.remove('on'));
+  btn.closest('.pg, .tab-bar + div, div').querySelectorAll ? null : null;
+  // Find all tab btns in same bar
+  btn.closest('.pg').querySelectorAll('.tab-bar .tab-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + groupId + "'"))
+      b.classList.remove('on');
+  });
+  btn.classList.add('on');
+  const panel = document.getElementById(panelId);
+  if (panel) panel.classList.add('on');
+}
+
+// ─── ACCORDION ────────────────────────────────
+function ac(triggerEl) {
+  const item = triggerEl.closest('.ac-i');
+  item.classList.toggle('open');
+}
+
+// ─── CHECKLIST + PROGRESS ─────────────────────
+const STORE = 'csfc-lab-v3';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE)) || {}; } catch(e) { saved = {}; }
+
+function chk(el, group) {
+  el.classList.toggle('ck-on');
+  const g = el.closest('ul');
+  const idx = [...g.querySelectorAll('.ck-i')].indexOf(el);
+  const key = group + '-' + idx;
+  if (el.classList.contains('ck-on')) saved[key] = true; else delete saved[key];
+  try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch(e){}
+  updateProgress();
+}
+
+function restoreProgress() {
+  document.querySelectorAll('[id^="ck-"]').forEach(list => {
+    const group = list.id.replace('ck-', '');
+    list.querySelectorAll('.ck-i').forEach((el, idx) => {
+      if (saved[group + '-' + idx]) el.classList.add('ck-on');
+    });
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const all = document.querySelectorAll('.ck-i');
+  const done = document.querySelectorAll('.ck-i.ck-on');
+  const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+  document.getElementById('pp').textContent = pct + '%';
+  document.getElementById('pf').style.width = pct + '%';
+  const badge = document.getElementById('dn-badge');
+  const dn = document.getElementById('dn-n');
+  if (done.length > 0) {
+    badge.style.display = 'inline-flex';
+    dn.textContent = done.length;
+  } else {
+    badge.style.display = 'none';
+  }
+  // Update nav completion badges
+  const groups = {};
+  document.querySelectorAll('[id^="ck-"]').forEach(list => {
+    const g = list.id.replace('ck-', '');
+    const total = list.querySelectorAll('.ck-i').length;
+    const chked = list.querySelectorAll('.ck-i.ck-on').length;
+    groups[g] = { total, chked };
+  });
+  navItems.forEach(nav => {
+    const p = nav.dataset.p;
+    const g = groups[p];
+    if (g && g.total > 0 && g.chked === g.total) {
+      nav.classList.add('dn');
+    } else {
+      nav.classList.remove('dn');
+    }
+  });
+}
+
+function resetProg() {
+  if (!confirm('Reset all checklist progress? This cannot be undone.')) return;
+  saved = {};
+  try { localStorage.removeItem(STORE); } catch(e){}
+  document.querySelectorAll('.ck-i').forEach(el => el.classList.remove('ck-on'));
+  updateProgress();
+}
+
+// ─── CODE COPY ────────────────────────────────
+function cp(btn) {
+  const code = btn.closest('.cb').querySelector('.cb-b');
+  const text = code.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1800);
+  }).catch(() => {
+    btn.textContent = '✗ Failed';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+  });
+}
+
+// ─── INIT ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  restoreProgress();
+});
+</script>
+</body>
+</html>
